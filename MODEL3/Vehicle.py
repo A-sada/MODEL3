@@ -35,12 +35,26 @@ class Vehicle_BASE:
         self.arrival_time_list =[]
         self.exchange_flag = 0
         self.route_planner = None
+        self.negotiation_log_path: Optional[str] = None
     #掲示板を取得
     def set_balletin(self,balletin : Balletin):
         self.bulletin_board = balletin
 
     def set_route_planner(self, planner):
         self.route_planner = planner
+
+    def evaluate_route_with_planner(self, tasks):
+        """Run the RL planner on a task list and return routing metrics."""
+        if self.route_planner is None:
+            return None
+        if tasks is None:
+            return None
+        try:
+            # The planner reorders tasks but does not mutate the provided list.
+            _, info = self.route_planner.plan_route(list(tasks), self.max_weight, self.dep_x, self.dep_y)
+            return info
+        except Exception:
+            return None
 
     #1日の最初に呼び出される
     def first_step(self):
@@ -52,7 +66,7 @@ class Vehicle_BASE:
         return
     
     def accept_or_reject(self,offer):
-        if len(self.tasks) < 3:
+        if len(self.tasks) < 1:
             return False    
         #交渉の受け入れの是非を実装
         if self.check_offer(offer.get("taskB")) == True:
@@ -148,8 +162,23 @@ class Vehicle_BASE:
         return
     def before_negotiation(self):
         return
-    def make_neg_agent(self):
-        self.Neg = VehicleNegotiator(self.id,self.tasks,self.offer_flag,self.propose_task,name= self.id)
+    def set_negotiation_log_path(self, log_path: Optional[str]):
+        self.negotiation_log_path = log_path
+
+    def make_neg_agent(self, negotiation_id: Optional[int] = None, counterparty_id: Optional[int] = None):
+        initial_can_propose = bool(self.offer_flag)
+        # print(f"initial_can_propose: {initial_can_propose}")
+        self.Neg = VehicleNegotiator(
+            self.id,
+            self.tasks,
+            is_vehicle_a=initial_can_propose,
+            task_a=self.propose_task,
+            negotiation_id=negotiation_id,
+            log_path=self.negotiation_log_path,
+            counterparty_id=counterparty_id,
+            name=self.id,
+            can_propose=True,
+        )
         self.Neg.bulletin_board = self.bulletin_board
         self.before_negotiation()
         self.Neg.remove_list = self.over_task

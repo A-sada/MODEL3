@@ -10,6 +10,7 @@ from VRPTW_functions import euclidean_distance
 from classes import Task
 from VRPTW_functions import calculate_cost_saving
 import copy
+from datetime import datetime
 """
 class negotiator(SAONegotiator):
     def __init__(self, owner : Vehicle_Base  ,List : list,neg_flag):
@@ -29,7 +30,24 @@ from typing import Optional
 
 # VehicleNegotiatorクラスの定義（NegMASのSAONegotiatorの代わりに基本的なPythonクラスを使用）
 class VehicleNegotiator(SAONegotiator):
-    def __init__(self, vehicle_id, tasks, is_vehicle_a, task_a, preferences: Preferences | None = None, ufun: BaseUtilityFunction | None = None, name: str | None = None, parent: Controller | None = None, owner: Agent | None = None, id: str | None = None, type_name: str | None = None, can_propose: bool = True):
+    def __init__(
+        self,
+        vehicle_id,
+        tasks,
+        is_vehicle_a,
+        task_a,
+        negotiation_id=None,
+        counterparty_id: int | str | None = None,
+        log_path: str | None = None,
+        preferences: Preferences | None = None,
+        ufun: BaseUtilityFunction | None = None,
+        name: str | None = None,
+        parent: Controller | None = None,
+        owner: Agent | None = None,
+        id: str | None = None,
+        type_name: str | None = None,
+        can_propose: bool = True,
+    ):
         self.vehicle_id = vehicle_id  # 車両ID
         self.tasks = tasks            # タスクのリスト（ルート）
         self.is_vehicle_a = is_vehicle_a  # 車両Aかどうかを示すフラグ
@@ -42,27 +60,33 @@ class VehicleNegotiator(SAONegotiator):
         self.flag = 0
         self.current_weight = 0
         self.max_weight = 100
-        super().__init__( preferences, ufun, name, parent, owner, id, type_name, can_propose)
+        self.negotiation_id = negotiation_id
+        self.counterparty_id = counterparty_id
+        self.log_path = log_path
+        super().__init__(preferences, ufun, name, parent, owner, id, type_name, can_propose)
         #self.add_capabilities(dict(propose_for_self=True))
 
     def propose(self, state: SAOState, dest: Optional[str] = None):
         # 提案のロジックを実装
         self.n_steps += 1
         task_a = None
+        # print(self.is_vehicle_a)
         if self.is_vehicle_a:
             # 車両Aの場合、taskAの提案のみ行う
             offer = {"taskA": self.task_a, "taskB": None}
         else:
+            none_oofer = {"taskA": None, "taskB": None}
+            # print(f"n_steps:{self.n_steps}")
             if self.n_steps == 1:
                 # 車両Bの場合、初回に受け取った提案からtaskAを取得
                 if not self.initial_offer_received:
-                    return None
+                    return none_oofer
                 task_a = self.initial_offer_received["taskA"]
                 self.make_remove_list(task_a)
                 self.flag = 1
             # 車両Bの場合、初回に受け取った提案からtaskAを取得
             if not self.initial_offer_received:
-                return None
+                return none_oofer
             task_a = self.initial_offer_received["taskA"] 
             #task_b = None  # 一方的に受け取る場合
             task_b = None
@@ -73,7 +97,8 @@ class VehicleNegotiator(SAONegotiator):
                         task_b = None
             offer ={"taskA": task_a, "taskB": task_b}
         #return super().propose(offer)
-        #print(offer)
+        # print(offer)
+        self._log_offer(state, offer)
         return offer
     
     def respond(
@@ -82,9 +107,16 @@ class VehicleNegotiator(SAONegotiator):
         offer: Outcome | None = None,
         source: str | None = None,
     ):
+        # if self.is_vehicle_a:
+        #     print("A")
+        # else:
+        #     print("B")
+        if offer is None and state is not None:
+            offer = state.current_offer
         if offer is None:
+            print("offer is None")
             return ResponseType.REJECT_OFFER
-        cost_border = 1 * (self.bulletin_board.max_steps - self.bulletin_board.n_steps) / self.bulletin_board.max_steps + 1
+        cost_border = 1 * (self.bulletin_board.max_steps - self.bulletin_board.n_steps) / self.bulletin_board.max_steps + 100
         # 応答のロジックを実装
         if not self.initial_offer_received:
             self.initial_offer_received = offer  # 初回の提案を保存
@@ -192,7 +224,7 @@ class VehicleNegotiator(SAONegotiator):
         if last_task_end_time + travel_time_to_new_task <= new_task.due_date:
             return True
         return False
-    
+
 
 
     @property
@@ -204,3 +236,39 @@ class VehicleNegotiator(SAONegotiator):
     def capabilities(self, value):
         # ここで _capabilities を設定するロジックを実装します
         self._capabilities = value
+
+    def _log_offer(self, state: SAOState, offer: dict[str, Task | None]):
+        if not self.log_path or offer is None:
+            return
+        try:
+            board_step = getattr(self.bulletin_board, "n_steps", "")
+            mechanism_step = getattr(state, "step", "") if state is not None else ""
+            role = "A" if self.is_vehicle_a else "B"
+            agent_offer_number = self.n_steps
+            task_a = offer.get("taskA") if offer else None
+            task_b = offer.get("taskB") if offer else None
+
+            def task_fields(task: Task | None):
+                if task is None:
+                    return ("", "", "", "")
+                return (
+                    getattr(task, "id", ""),
+                    getattr(task, "ready_time", ""),
+                    getattr(task, "due_date", ""),
+                    getattr(task, "weight", ""),
+                )
+
+            task_a_fields = task_fields(task_a)
+            task_b_fields = task_fields(task_b)
+            timestamp = datetime.now().isoformat()
+            negotiation_id = self.negotiation_id if self.negotiation_id is not None else ""
+
+            recipient_id = self.counterparty_id if self.counterparty_id is not None else ""
+
+            with open(self.log_path, "a", encoding="utf-8") as log_file:
+                log_file.write(
+                    f"{timestamp},{board_step},{negotiation_id},{self.vehicle_id},{recipient_id},{role},{mechanism_step},{agent_offer_number},{task_a_fields[0]},{task_a_fields[1]},{task_a_fields[2]},{task_a_fields[3]},{task_b_fields[0]},{task_b_fields[1]},{task_b_fields[2]},{task_b_fields[3]}\n"
+                )
+        except Exception:
+            # ログ記録に失敗しても交渉自体は継続させる
+            pass

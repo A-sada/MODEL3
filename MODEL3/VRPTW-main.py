@@ -12,7 +12,7 @@ from VRPTW_functions import *
 from initialsolution import *
 from rl_route_planner import build_default_planner
 
-ENABLE_RL_ROUTING = False
+ENABLE_RL_ROUTING = True
 RL_TRAINING_EPISODES = 200
 # from initial_ver2 import *
 # from initial_ver2 import *
@@ -62,6 +62,13 @@ directory_name = os.path.join(base_directory_name, current_time_str)
 
 # ディレクトリが存在しない場合、作成（親ディレクトリも含めて）
 os.makedirs(directory_name, exist_ok=True)
+negotiation_log_path = os.path.join(directory_name, "negotiation_offers.csv")
+with open(negotiation_log_path, 'w') as negotiation_log_file:
+    negotiation_log_file.write(
+        "timestamp,global_step,negotiation_id,sender_vehicle_id,recipient_vehicle_id,role,mechanism_step,agent_offer_number,"
+        "taskA_id,taskA_ready_time,taskA_due_date,taskA_weight,"
+        "taskB_id,taskB_ready_time,taskB_due_date,taskB_weight\n"
+    )
 ll=[]
 ll=read_task("r101.txt",tasks)
 # ll=read_task("R2.TXT",tasks)
@@ -83,6 +90,7 @@ bulletin_board.dep_y = dep_y
 run_num = assign_tasks_to_vehicles_with_insert(tasks, vehicles,run_num,dep_x, dep_y)
 for car in vehicles:
     car.set_balletin(bulletin_board)
+    car.set_negotiation_log_path(negotiation_log_path)
 
 route_planner = None
 if ENABLE_RL_ROUTING and vehicles:
@@ -112,7 +120,6 @@ cars_id = {}
 for vehicle in vehicles:
     cars_id[vehicle.id] = vehicle
 
-count =0
 # 結果を表示（テスト用）
 i=0
 filename = os.path.join(directory_name, f"Step-0.txt") 
@@ -123,8 +130,6 @@ with open(filename, 'w') as f:
         # ファイル名を生成
         f.write(f"Vehicle {vehicle.id} has tasks {task_ids} with total weight {vehicle.current_weight}.\n")
     f.write(f"CVN {len(vehicles)} CRT {sum_travel_time(vehicles)}\n")
-        # if len(task_ids) == 1:
-        #     count += 1
 # plot_vehicle_routes(vehicles)
 #車両routeの適正比較
 from collections import deque
@@ -192,14 +197,14 @@ for negotiate_steps in range(MMM):
     start = time.time()
     for neg in negotiation_list:
         neg.vehicleA.start_negotiation(neg.id)
-        negA=neg.vehicleA.make_neg_agent()
+        negA=neg.vehicleA.make_neg_agent(neg.id, counterparty_id=neg.vehicleB.id)
         negA.current_weight = neg.vehicleA.current_weight
-        negB=neg.vehicleB.make_neg_agent()
+        negB=neg.vehicleB.make_neg_agent(neg.id, counterparty_id=neg.vehicleA.id)
         negA.max_weight = neg.vehicleA.max_weight
         negB.max_weight = neg.vehicleB.max_weight
         negB.current_weight = neg.vehicleB.current_weight
         result=Nego1(neg.vehicleA,neg.vehicleB,negA,negB)
-        ##print(result)
+        #print(result)
         # 交渉が成功した場合には合意内容をリストに追加
         if result.agreement != None:
             agreement = result.agreement
@@ -207,7 +212,7 @@ for negotiate_steps in range(MMM):
             taskB = agreement['taskB']if 'taskB' in agreement else None
             agreements.append(Agree(neg.vehicleA,neg.vehicleB,taskA,taskB))
         neg.vehicleA.end_negotiation()
-    # print(f"合意リストの長さ：{len(agreements)}")
+    print(f"合意リストの長さ：{len(agreements)}")
     end = time.time()
     time_diff = end - start
     #print(f"Nego1関数の実行時間: {time_diff} 秒")
@@ -250,7 +255,7 @@ for negotiate_steps in range(MMM):
     sorted_signed = sorted(signed, key=lambda x: x.cost)
     signed = []
     signed = [x.agre for x in sorted_signed]    
-    count = 0
+    exchange_count = 0
     #print(f"署名リストの長さ：{len(signed)}")
     start = time.time()
     for sig in signed:
@@ -293,7 +298,7 @@ for negotiate_steps in range(MMM):
             else:
                 AgentA.exchange_flag = 1
                 AgentB.exchange_flag = 1
-                count += 1
+                exchange_count += 1
 
     # end = time.time()
     # time_diff = end - start
@@ -357,8 +362,6 @@ for negotiate_steps in range(MMM):
             task_ids = [task.id for task in vehicle.tasks]
             # ファイル名を生成
             f.write(f"Vehicle {vehicle.id} has tasks {task_ids} with total weight {vehicle.current_weight}.\n")
-            if len(task_ids) == 1:
-                count += 1
         f.write(f"CVN {len(vehicles)} CRT {sum_travel_time(vehicles)}\n")
     filename = os.path.join(directory_name, f"TimeBoard-{negotiate_steps}.txt")
     bulletin_board.time_board.to_csv(filename,sep='\t',index = False)
@@ -367,7 +370,7 @@ for negotiate_steps in range(MMM):
     plot_vehicle_routes(vehicles,directory_name,negotiate_steps)
     log_CVN.append(len(vehicles))
     log_CRT.append(sum_travel_time(vehicles))
-    log_nego.append(count)
+    log_nego.append(exchange_count)
     filename = os.path.join(directory_name, "1log_main.txt")
     with open(filename, 'a') as f:
         # for i in range(len(log_nego)):

@@ -116,6 +116,9 @@ def calculate_earliest_start_time(previous_task, current_task,current_time):
 def latest_start_time_list(tasks):
     # 関数内でユークリッド距離を計算するヘルパー関数
 
+    if not tasks:
+        return tasks
+
     # 最後のタスク（最も遅い締切時間を持つタスク）の最遅開始時間を設定（サービス開始の締切時間とする）
     last_task = tasks[len(tasks)-1]
     last_task.late_start_time = last_task.task.due_date

@@ -13,6 +13,8 @@ import copy
  
 
 class Vehicle(Vehicle_BASE):
+    RL_REWARD_WEIGHT = 1.0
+    RL_UNASSIGNED_WEIGHT = 100000.0
 #TypeA
     def __init__(self, id, max_weight, dep_x, dep_y):
         super().__init__(id, max_weight, dep_x, dep_y)
@@ -222,7 +224,31 @@ class Vehicle(Vehicle_BASE):
         # print(signed)
         return signed
 
-    
+    def _build_candidate_tasks_for_rl(self, remove_task, add_task):
+        candidate_tasks = []
+        for task in self.tasks:
+            if remove_task is not None and task is remove_task:
+                continue
+            candidate_tasks.append(task)
+        if add_task is not None:
+            candidate_tasks.append(add_task)
+        return candidate_tasks
+
+    def _route_planner_cost_adjustment(self, remove_task, add_task):
+        if self.route_planner is None:
+            return None
+        baseline_info = self.evaluate_route_with_planner(self.tasks)
+        if baseline_info is None:
+            return None
+        candidate_tasks = self._build_candidate_tasks_for_rl(remove_task, add_task)
+        candidate_info = self.evaluate_route_with_planner(candidate_tasks)
+        if candidate_info is None:
+            return None
+        reward_delta = candidate_info.get("total_reward", 0.0) - baseline_info.get("total_reward", 0.0)
+        unassigned_delta = candidate_info.get("unassigned_tasks", 0) - baseline_info.get("unassigned_tasks", 0)
+        rl_cost = -self.RL_REWARD_WEIGHT * reward_delta
+        rl_cost += self.RL_UNASSIGNED_WEIGHT * unassigned_delta
+        return rl_cost
 
 
     # この関数は特定の合意結果のコスト削減を計算します。
@@ -253,6 +279,9 @@ class Vehicle(Vehicle_BASE):
         over_late = 10 * (self.bulletin_board.n_steps / self.bulletin_board.max_steps) ** 2
         distance_late = 0.5
         cost_saving = (-1)*slack_late * slack_cost + over_late * over_cost + distance_late * distans_cost
+        rl_cost = self._route_planner_cost_adjustment(remove_task, give_task)
+        if rl_cost is not None:
+            cost_saving += rl_cost
         #print(f"車両{self.id}のコスト削減は{cost_saving}")
         return cost_saving
 
