@@ -22,6 +22,10 @@ vehicles = []
 no_runs=[]
 N=50
 
+# Track RL runtime from post-training to shutdown when RL is active
+rl_post_training_start_time = None
+rl_training_executed = False
+
 #時間に関する掲示板
 b_board = pd.DataFrame({
     'id': pd.Series(dtype='int'),
@@ -59,8 +63,8 @@ directory_name = os.path.join(base_directory_name, current_time_str)
 # ディレクトリが存在しない場合、作成（親ディレクトリも含めて）
 os.makedirs(directory_name, exist_ok=True)
 ll=[]
-# ll=read_task("r101.txt",tasks)
-ll=read_task("R2.TXT",tasks)
+ll=read_task("r101.txt",tasks)
+# ll=read_task("R2.TXT",tasks)
 max_xy = ll[0]
 max_time = ll[1]
 #n = (int)(max_xy /25)
@@ -91,12 +95,16 @@ if ENABLE_RL_ROUTING and vehicles:
                 for _ in range(RL_TRAINING_EPISODES):
                     vehicle = random.choice(training_population)
                     route_planner.train_episode(list(vehicle.tasks), vehicle.max_weight, dep_x, dep_y)
+                rl_training_executed = True
             for vehicle in vehicles:
                 vehicle.set_route_planner(route_planner)
     except ImportError as exc:
         print(f"RL route planner disabled: {exc}")
     except Exception as exc:
         print(f"Failed to initialise RL route planner: {exc}")
+
+if rl_training_executed:
+    rl_post_training_start_time = time.time()
 
 
 #車両とIDの紐付け＿辞書
@@ -365,3 +373,11 @@ for negotiate_steps in range(MMM):
         # for i in range(len(log_nego)):
             # ファイル名を生成
         f.write(f"steps {negotiate_steps+1} CVN {log_CVN[negotiate_steps+1]} CRT {log_CRT[negotiate_steps+1]} n_neg {log_nego[negotiate_steps+1]}.\n")
+
+if rl_post_training_start_time is not None:
+    elapsed_after_rl = time.time() - rl_post_training_start_time
+    rl_runtime_message = f"RL学習後から終了までの経過時間 {elapsed_after_rl:.2f} 秒"
+    print(rl_runtime_message)
+    log_path = os.path.join(directory_name, "1log_main.txt")
+    with open(log_path, 'a') as f:
+        f.write(rl_runtime_message + "\n")

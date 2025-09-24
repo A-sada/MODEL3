@@ -1,0 +1,27 @@
+id	A	B	C	D	E	F	G
+0		B2	A3	A3	A3	A2	
+1			B2	B1	B1	B1	B1
+2			B2	C3	C3	C3	C3
+3		B2	C1	C1	B1		
+4				B2	C3	C3	C3
+5				B2	B3	B3	B3
+6				B	B1	B1	B1
+7					B2	A1	A1
+8				A2	A1	A1	A1
+9			B2	C1	C1	C1	
+10				B2	B2	B2	B2
+11				B2	A3	A3	A3
+12			B2	C2	C2	C2	C2
+13						B2	B3
+14				B2	C2	C2	C2
+15					B2	C1	C1
+16			A2	A2	A2	A1	
+17		B2	A1	A1	A1	B1	
+18						A1	A1
+19			A2	A2	A2		
+20			B2	B3	B3		
+21						B2	C2
+22					B2	A3	A3
+23					B2	B1	B1
+24				B2	A3	A3	A3
+25			B2	B2			
