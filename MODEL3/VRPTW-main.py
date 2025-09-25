@@ -13,14 +13,14 @@ from initialsolution import *
 from rl_route_planner import build_default_planner
 
 ENABLE_RL_ROUTING = True
-RL_TRAINING_EPISODES = 200
+RL_TRAINING_EPISODES = 2000
 # from initial_ver2 import *
 # from initial_ver2 import *
 run_num = 0
 tasks = []  # タスクを保存するためのリスト
 vehicles = []
 no_runs=[]
-N=50
+N=200
 
 # Track RL runtime from post-training to shutdown when RL is active
 rl_post_training_start_time = None
@@ -212,7 +212,7 @@ for negotiate_steps in range(MMM):
             taskB = agreement['taskB']if 'taskB' in agreement else None
             agreements.append(Agree(neg.vehicleA,neg.vehicleB,taskA,taskB))
         neg.vehicleA.end_negotiation()
-    print(f"合意リストの長さ：{len(agreements)}")
+    # print(f"合意リストの長さ：{len(agreements)}")
     end = time.time()
     time_diff = end - start
     #print(f"Nego1関数の実行時間: {time_diff} 秒")
