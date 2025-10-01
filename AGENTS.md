@@ -40,7 +40,9 @@ Specific negotiation and signing policies live in strategy subclasses that inher
 ## Shared Infrastructure
 - `Balletin` (`MODEL3/classes.py`) is the shared bulletin board that keeps each vehicle's slack time, operating window, and area occupancy. Vehicles call `bulletin_update` each step to refresh it.
 - Time/space utilities in `MODEL3/VRPTW_functions.py` (e.g. `find_time_zone`, `find_vehicles_in_neighboring_areas`, `calculate_cost_saving`) supply the common calculations needed by both vehicles and negotiators.
-- `MODEL3/rl_route_planner.py` defines an optional DQN-based planner (`build_default_planner`) that vehicles can consult to rank task sequences before or after negotiations.
+- `MODEL3/rl_route_planner.py` exposes a 事前学習済みDQNルートプランナー。`load_pretrained_planner`でチェックポイントを読み込み、車両は `set_route_planner` / `evaluate_route_with_planner` 経由で指標を取得する。
+- `MODEL3/VRPTW-main.py` は `MODEL3/pretrained/planner_checkpoint.pt`（または環境変数 `RL_PLANNER_CHECKPOINT` で指定したパス）からチェックポイントを探し、見つからない場合はRL評価を無効化する。
+- 事前学習用のスタンドアロン学習スクリプトは `MODEL3/train_rl_route_planner.py`。`--use-all-instances` または `USER_RUN_CONFIG` で `use_all_instances=True` を指定すると `Dateset/In` 以下の全インスタンスからサブセットを生成して学習する。
 
 ## Interaction Cycle (`MODEL3/VRPTW-main.py`)
 1. Load tasks, instantiate vehicles, and attach the shared `Balletin` and optional RL planner.

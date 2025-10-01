@@ -21,12 +21,13 @@ USE_CLI = False
 USER_RUN_CONFIG = {
     "dataset_root": SCRIPT_DIR / "Dateset" / "In",
     "instances": [],
-    "instance_sample_size": 10,
+    "instance_sample_size": 0,
+    "use_all_instances": True,
     "train_samples": 200,
     "test_samples": 50,
     "subset_min": 3,
     "subset_max": 20,
-    "train_episodes": 10000,
+    "train_episodes": 100000,
     "seed": 42,
     "log_interval": 50,
     "learning_rate": 1e-3,
@@ -130,6 +131,7 @@ class EvaluationResult:
     subset_key: str
     num_tasks: int
     total_reward: float
+    raw_total_reward: float
     total_distance: float
     total_lateness: float
     unassigned_tasks: int
@@ -139,6 +141,7 @@ class EvaluationResult:
             "subset": self.subset_key,
             "num_tasks": self.num_tasks,
             "total_reward": self.total_reward,
+            "raw_total_reward": self.raw_total_reward,
             "total_distance": self.total_distance,
             "total_lateness": self.total_lateness,
             "unassigned_tasks": self.unassigned_tasks,
@@ -311,6 +314,7 @@ def evaluate_subsets(planner: DQNRoutePlanner, subsets: Iterable[TaskSubset]) ->
                 subset_key=key,
                 num_tasks=len(route),
                 total_reward=float(info.get("total_reward", 0.0)),
+                raw_total_reward=float(info.get("raw_total_reward", info.get("total_reward", 0.0))),
                 total_distance=float(info.get("total_distance", 0.0)),
                 total_lateness=float(info.get("total_lateness", 0.0)),
                 unassigned_tasks=int(info.get("unassigned_tasks", 0)),
@@ -324,6 +328,7 @@ def summarise_results(results: Sequence[EvaluationResult]) -> dict:
         return {
             "count": 0,
             "avg_reward": 0.0,
+            "avg_raw_reward": 0.0,
             "avg_distance": 0.0,
             "avg_lateness": 0.0,
             "avg_unassigned": 0.0,
@@ -331,6 +336,7 @@ def summarise_results(results: Sequence[EvaluationResult]) -> dict:
     return {
         "count": len(results),
         "avg_reward": statistics.mean(res.total_reward for res in results),
+        "avg_raw_reward": statistics.mean(res.raw_total_reward for res in results),
         "avg_distance": statistics.mean(res.total_distance for res in results),
         "avg_lateness": statistics.mean(res.total_lateness for res in results),
         "avg_unassigned": statistics.mean(res.unassigned_tasks for res in results),
@@ -361,11 +367,11 @@ def train_planner(
 
 
 def export_evaluation(path: Path, results: Sequence[EvaluationResult]) -> None:
-    header = "subset,num_tasks,total_reward,total_distance,total_lateness,unassigned_tasks\n"
+    header = "subset,num_tasks,total_reward,raw_total_reward,total_distance,total_lateness,unassigned_tasks\n"
     lines = [header]
     for res in results:
         lines.append(
-            f"{res.subset_key},{res.num_tasks},{res.total_reward:.4f},{res.total_distance:.4f},{res.total_lateness:.4f},{res.unassigned_tasks}\n"
+            f"{res.subset_key},{res.num_tasks},{res.total_reward:.4f},{res.raw_total_reward:.4f},{res.total_distance:.4f},{res.total_lateness:.4f},{res.unassigned_tasks}\n"
         )
     with path.open("w", encoding="utf-8") as handle:
         handle.writelines(lines)
@@ -381,8 +387,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--instances",
-        nargs="+",
-        default=["r101.txt"],
+        nargs="*",
+        default=[],
         help="Instance filenames (within dataset root) used for sampling tasks",
     )
     parser.add_argument(
@@ -390,6 +396,11 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=0,
         help="When >0, randomly sample this many instance files from the dataset root (recursively)",
+    )
+    parser.add_argument(
+        "--use-all-instances",
+        action="store_true",
+        help="Ignore --instances/--instance-sample-size and use every instance in the dataset root",
     )
     parser.add_argument("--train-samples", type=int, default=200, help="Number of sampled task subsets per instance for training")
     parser.add_argument("--test-samples", type=int, default=50, help="Number of sampled task subsets per instance for testing")
@@ -445,8 +456,12 @@ def main() -> None:
         args = argparse.Namespace(**USER_RUN_CONFIG)
 
     args.dataset_root = Path(args.dataset_root)
-    args.instances = list(args.instances)
+    raw_instances = getattr(args, "instances", [])
+    if raw_instances is None:
+        raw_instances = []
+    args.instances = list(raw_instances)
     args.instance_sample_size = int(getattr(args, "instance_sample_size", 0) or 0)
+    args.use_all_instances = bool(getattr(args, "use_all_instances", False))
     if args.output_dir is not None:
         args.output_dir = Path(args.output_dir)
     if args.checkpoint is not None:
@@ -463,7 +478,17 @@ def main() -> None:
         raise FileNotFoundError(f"Dataset root {dataset_root} does not exist")
 
     instance_files: List[Path]
-    if args.instance_sample_size and args.instance_sample_size > 0:
+    if args.use_all_instances:
+        instance_files = sorted(
+            {
+                path.resolve()
+                for path in dataset_root.rglob("*.txt")
+                if path.is_file() and "roadtopology" not in {part.lower() for part in path.parts}
+            }
+        )
+        if not instance_files:
+            raise RuntimeError(f"No instance files found under {dataset_root} when --use-all-instances is set")
+    elif args.instance_sample_size and args.instance_sample_size > 0:
         candidates = [
             path
             for path in dataset_root.rglob("*.txt")
@@ -476,7 +501,7 @@ def main() -> None:
         instance_files = candidates[:sample_count]
     else:
         if not args.instances:
-            raise RuntimeError("No instances provided and instance_sample_size is 0")
+            raise RuntimeError("No instances provided; specify --instances, --instance-sample-size, or --use-all-instances")
         instance_files = [dataset_root / name for name in args.instances]
 
     for file in instance_files:

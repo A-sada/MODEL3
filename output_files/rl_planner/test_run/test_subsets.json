@@ -1,0 +1,58 @@
+[
+  {
+    "instance": "r101.txt",
+    "subset_id": 2,
+    "capacity": 200.0,
+    "depot": [
+      35.0,
+      35.0
+    ],
+    "tasks": [
+      {
+        "id": 95,
+        "x": 25.0,
+        "y": 24.0,
+        "weight": 20.0,
+        "ready_time": 39.0,
+        "due_date": 49.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 70,
+        "x": 37.0,
+        "y": 56.0,
+        "weight": 5.0,
+        "ready_time": 182.0,
+        "due_date": 192.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 12,
+        "x": 50.0,
+        "y": 35.0,
+        "weight": 19.0,
+        "ready_time": 63.0,
+        "due_date": 73.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 76,
+        "x": 49.0,
+        "y": 42.0,
+        "weight": 13.0,
+        "ready_time": 73.0,
+        "due_date": 83.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 55,
+        "x": 63.0,
+        "y": 23.0,
+        "weight": 2.0,
+        "ready_time": 136.0,
+        "due_date": 146.0,
+        "service_time": 10.0
+      }
+    ]
+  }
+]

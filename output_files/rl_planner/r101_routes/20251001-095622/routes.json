@@ -1,0 +1,430 @@
+[
+  {
+    "route_index": 1,
+    "requested_tasks": [
+      2,
+      4,
+      21,
+      41,
+      56,
+      73
+    ],
+    "planned_route": [
+      2,
+      73,
+      4,
+      21,
+      41,
+      56
+    ],
+    "total_reward": -7.910263137648708,
+    "raw_total_reward": -47.461578825892246,
+    "total_distance": 38.40175425099138,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 3
+  },
+  {
+    "route_index": 2,
+    "requested_tasks": [
+      5,
+      37,
+      61,
+      83,
+      85,
+      93
+    ],
+    "planned_route": [
+      93,
+      5,
+      37,
+      61,
+      83,
+      85
+    ],
+    "total_reward": -6.170601843030821,
+    "raw_total_reward": -37.023611058184926,
+    "total_distance": 20.248456731316587,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "route_index": 3,
+    "requested_tasks": [
+      13,
+      14,
+      38,
+      43,
+      44
+    ],
+    "planned_route": [
+      13,
+      14,
+      38,
+      43,
+      44
+    ],
+    "total_reward": -5.192461179749811,
+    "raw_total_reward": -25.962305898749054,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "route_index": 4,
+    "requested_tasks": [
+      3,
+      24,
+      27,
+      54,
+      69,
+      76,
+      79,
+      80
+    ],
+    "planned_route": [
+      27,
+      80,
+      3,
+      24,
+      54,
+      69,
+      76,
+      79
+    ],
+    "total_reward": -5.098985386504598,
+    "raw_total_reward": -40.791883092036784,
+    "total_distance": 26.213203435596427,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "route_index": 5,
+    "requested_tasks": [
+      12,
+      26,
+      28,
+      40,
+      53
+    ],
+    "planned_route": [
+      53,
+      26,
+      12,
+      28,
+      40
+    ],
+    "total_reward": -4.696190866593663,
+    "raw_total_reward": -23.480954332968317,
+    "total_distance": 12.534393703298129,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 3
+  },
+  {
+    "route_index": 6,
+    "requested_tasks": [
+      1,
+      9,
+      30,
+      51,
+      66
+    ],
+    "planned_route": [
+      1,
+      9,
+      30,
+      51,
+      66
+    ],
+    "total_reward": -5.961678318111007,
+    "raw_total_reward": -29.808391590555036,
+    "total_distance": 15.231546211727817,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "route_index": 7,
+    "requested_tasks": [
+      7,
+      10,
+      31,
+      88
+    ],
+    "planned_route": [
+      88,
+      10,
+      7,
+      31
+    ],
+    "total_reward": -9.190422593625863,
+    "raw_total_reward": -36.76169037450345,
+    "total_distance": 28.179655971670503,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 2
+  },
+  {
+    "route_index": 8,
+    "requested_tasks": [
+      29,
+      33,
+      34,
+      35,
+      77,
+      78
+    ],
+    "planned_route": [
+      77,
+      29,
+      33,
+      34,
+      35,
+      78
+    ],
+    "total_reward": -5.937990673872164,
+    "raw_total_reward": -35.627944043232986,
+    "total_distance": 19.697715603592208,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "route_index": 9,
+    "requested_tasks": [
+      8,
+      17,
+      19,
+      36,
+      46,
+      47
+    ],
+    "planned_route": [
+      17,
+      8,
+      19,
+      36,
+      46,
+      47
+    ],
+    "total_reward": -7.178738564390332,
+    "raw_total_reward": -43.07243138634199,
+    "total_distance": 30.413812651491096,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "route_index": 10,
+    "requested_tasks": [
+      23,
+      25,
+      39,
+      55,
+      67
+    ],
+    "planned_route": [
+      55,
+      25,
+      23,
+      39,
+      67
+    ],
+    "total_reward": -9.372355865805533,
+    "raw_total_reward": -46.86177932902766,
+    "total_distance": 34.06864369891962,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 3
+  },
+  {
+    "route_index": 11,
+    "requested_tasks": [
+      18,
+      45,
+      60,
+      82,
+      84,
+      89
+    ],
+    "planned_route": [
+      89,
+      18,
+      45,
+      60,
+      82,
+      84
+    ],
+    "total_reward": -4.283333333333333,
+    "raw_total_reward": -25.7,
+    "total_distance": 9.0,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "route_index": 12,
+    "requested_tasks": [
+      6,
+      52
+    ],
+    "planned_route": [
+      6,
+      52
+    ],
+    "total_reward": -9.981152949374527,
+    "raw_total_reward": -19.962305898749054,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 1
+  },
+  {
+    "route_index": 13,
+    "requested_tasks": [
+      59,
+      94,
+      96,
+      99
+    ],
+    "planned_route": [
+      94,
+      96,
+      59,
+      99
+    ],
+    "total_reward": -6.734358780228266,
+    "raw_total_reward": -26.937435120913065,
+    "total_distance": 16.041594578792296,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 2
+  },
+  {
+    "route_index": 14,
+    "requested_tasks": [
+      11,
+      20,
+      32,
+      62,
+      70,
+      90
+    ],
+    "planned_route": [
+      70,
+      11,
+      20,
+      32,
+      62,
+      90
+    ],
+    "total_reward": -6.197586799792681,
+    "raw_total_reward": -37.18552079875609,
+    "total_distance": 21.095023109728984,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "route_index": 15,
+    "requested_tasks": [
+      48,
+      49,
+      63,
+      64
+    ],
+    "planned_route": [
+      48,
+      49,
+      63,
+      64
+    ],
+    "total_reward": -10.38064744850603,
+    "raw_total_reward": -41.52258979402412,
+    "total_distance": 27.80287754891569,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 3
+  },
+  {
+    "route_index": 16,
+    "requested_tasks": [
+      50,
+      65,
+      68,
+      71,
+      81
+    ],
+    "planned_route": [
+      50,
+      65,
+      68,
+      71,
+      81
+    ],
+    "total_reward": -5.5347012947258865,
+    "raw_total_reward": -27.67350647362943,
+    "total_distance": 16.970562748477143,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "route_index": 17,
+    "requested_tasks": [
+      22,
+      58,
+      72,
+      74,
+      75
+    ],
+    "planned_route": [
+      58,
+      22,
+      72,
+      74,
+      75
+    ],
+    "total_reward": -5.629969324864735,
+    "raw_total_reward": -28.149846624323676,
+    "total_distance": 9.055385138137417,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "route_index": 18,
+    "requested_tasks": [
+      15,
+      42,
+      57,
+      87,
+      92,
+      97
+    ],
+    "planned_route": [
+      97,
+      15,
+      42,
+      57,
+      87,
+      92
+    ],
+    "total_reward": -4.797364246779455,
+    "raw_total_reward": -28.784185480676726,
+    "total_distance": 17.204650534085253,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "route_index": 19,
+    "requested_tasks": [
+      16,
+      86,
+      91,
+      95,
+      98,
+      100
+    ],
+    "planned_route": [
+      95,
+      100,
+      16,
+      86,
+      91,
+      98
+    ],
+    "total_reward": -6.5295086473583765,
+    "raw_total_reward": -39.17705188415026,
+    "total_distance": 24.08561320461139,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  }
+]

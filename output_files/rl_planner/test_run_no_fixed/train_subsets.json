@@ -1,0 +1,96 @@
+[
+  {
+    "instance": "r101.txt",
+    "subset_id": 0,
+    "capacity": 200.0,
+    "depot": [
+      35.0,
+      35.0
+    ],
+    "tasks": [
+      {
+        "id": 15,
+        "x": 30.0,
+        "y": 5.0,
+        "weight": 8.0,
+        "ready_time": 61.0,
+        "due_date": 71.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 4,
+        "x": 55.0,
+        "y": 20.0,
+        "weight": 19.0,
+        "ready_time": 149.0,
+        "due_date": 159.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 95,
+        "x": 25.0,
+        "y": 24.0,
+        "weight": 20.0,
+        "ready_time": 39.0,
+        "due_date": 49.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 36,
+        "x": 2.0,
+        "y": 60.0,
+        "weight": 5.0,
+        "ready_time": 41.0,
+        "due_date": 51.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 32,
+        "x": 35.0,
+        "y": 69.0,
+        "weight": 23.0,
+        "ready_time": 141.0,
+        "due_date": 151.0,
+        "service_time": 10.0
+      }
+    ]
+  },
+  {
+    "instance": "r101.txt",
+    "subset_id": 1,
+    "capacity": 200.0,
+    "depot": [
+      35.0,
+      35.0
+    ],
+    "tasks": [
+      {
+        "id": 18,
+        "x": 20.0,
+        "y": 40.0,
+        "weight": 12.0,
+        "ready_time": 87.0,
+        "due_date": 97.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 95,
+        "x": 25.0,
+        "y": 24.0,
+        "weight": 20.0,
+        "ready_time": 39.0,
+        "due_date": 49.0,
+        "service_time": 10.0
+      },
+      {
+        "id": 14,
+        "x": 15.0,
+        "y": 10.0,
+        "weight": 20.0,
+        "ready_time": 32.0,
+        "due_date": 42.0,
+        "service_time": 10.0
+      }
+    ]
+  }
+]

@@ -4,8 +4,9 @@ from __future__ import annotations
 import math
 import random
 from collections import deque
-from dataclasses import dataclass
-from typing import Deque, Dict, List, Optional, Sequence, Tuple
+from dataclasses import dataclass, asdict, fields
+from pathlib import Path
+from typing import Deque, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -42,6 +43,23 @@ class PlannerConfig:
     late_penalty: float = 5.0
     completion_bonus: float = 10.0
     infeasible_penalty: float = 25.0
+
+    def to_dict(self) -> Dict[str, float | int]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: Dict[str, float | int | None]) -> "PlannerConfig":
+        if payload is None:
+            raise ValueError("PlannerConfig payload is None and cannot be reconstructed")
+        field_names = {field.name for field in fields(cls)}
+        config_kwargs: Dict[str, float | int] = {}
+        for key, value in payload.items():
+            if key in field_names and value is not None:
+                config_kwargs[key] = value
+        missing = {name for name in field_names if name not in config_kwargs}
+        if missing:
+            raise ValueError(f"PlannerConfig missing keys in checkpoint: {sorted(missing)}")
+        return cls(**config_kwargs)  # type: ignore[arg-type]
 
 
 class VRPTWRoutingEnv:
@@ -304,7 +322,8 @@ if torch is not None:
                 if self.steps_done % self.config.target_sync == 0:
                     self.target_net.load_state_dict(self.policy_net.state_dict())
             self._decay_epsilon()
-            return episode_reward
+            task_count = max(len(tasks), 1)
+            return episode_reward / float(task_count)
 
         def _learn_step(self) -> None:
             if len(self.replay_buffer) < self.config.batch_size:
@@ -362,8 +381,11 @@ if torch is not None:
                 state, candidates, _, done, info = self.env.step(action_index)
             route = list(self.env.route)
             remaining_ids = {task.id for task in tasks} - {task.id for task in route}
+            task_count = max(len(tasks), 1)
+            averaged_reward = self.env.total_reward / float(task_count)
             info = {
-                "total_reward": self.env.total_reward,
+                "total_reward": averaged_reward,
+                "raw_total_reward": self.env.total_reward,
                 "total_distance": self.env.total_distance,
                 "total_lateness": self.env.total_lateness,
                 "unassigned_tasks": len(remaining_ids),
@@ -373,24 +395,53 @@ if torch is not None:
                 route.extend(leftovers)
             return route, info
 
-        def save(self, path: str) -> None:
+        def save(self, path: str | Path) -> None:
+            path = Path(path)
             torch.save(
                 {
                     "policy_state_dict": self.policy_net.state_dict(),
                     "target_state_dict": self.target_net.state_dict(),
                     "epsilon": self.epsilon,
                     "steps_done": self.steps_done,
+                    "config": self.config.to_dict(),
                 },
                 path,
             )
 
-        def load(self, path: str) -> None:
-            checkpoint = torch.load(path, map_location=self.device)
-            self.policy_net.load_state_dict(checkpoint["policy_state_dict"])
-            self.target_net.load_state_dict(checkpoint["target_state_dict"])
-            self.epsilon = checkpoint.get("epsilon", self.config.epsilon_min)
-            self.steps_done = checkpoint.get("steps_done", 0)
+        def _apply_checkpoint(self, checkpoint: Dict[str, object]) -> None:
+            self.policy_net.load_state_dict(checkpoint["policy_state_dict"])  # type: ignore[index]
+            self.target_net.load_state_dict(checkpoint["target_state_dict"])  # type: ignore[index]
+            self.epsilon = float(checkpoint.get("epsilon", self.config.epsilon_min))  # type: ignore[arg-type]
+            self.steps_done = int(checkpoint.get("steps_done", 0))
             self.target_net.load_state_dict(self.policy_net.state_dict())
+
+        def load(self, path: str | Path) -> None:
+            path = Path(path)
+            checkpoint = torch.load(path, map_location=self.device)
+            config_payload = checkpoint.get("config")
+            if config_payload is not None:
+                loaded_config = PlannerConfig.from_dict(config_payload)  # type: ignore[arg-type]
+                if loaded_config.max_tasks != self.config.max_tasks:
+                    raise ValueError(
+                        "Checkpoint max_tasks does not match current planner configuration: "
+                        f"{loaded_config.max_tasks} != {self.config.max_tasks}"
+                    )
+                self.config = loaded_config
+                self.env.config = loaded_config
+            self._apply_checkpoint(checkpoint)
+
+        @classmethod
+        def from_checkpoint(cls, path: Union[str, Path]) -> "DQNRoutePlanner":
+            path = Path(path)
+            checkpoint = torch.load(path, map_location="cpu")
+            config_payload = checkpoint.get("config")
+            if config_payload is None:
+                raise ValueError("Checkpoint does not embed planner configuration; retrain with updated trainer.")
+            config = PlannerConfig.from_dict(config_payload)  # type: ignore[arg-type]
+            env = VRPTWRoutingEnv(config)
+            planner = cls(env, config)
+            planner._apply_checkpoint(checkpoint)
+            return planner
 
 
 else:
@@ -401,9 +452,20 @@ else:
         def __init__(self, env: VRPTWRoutingEnv, config: Optional[PlannerConfig] = None):
             raise ImportError("PyTorch is required for DQNRoutePlanner. Install torch to enable RL routing.")
 
+        @classmethod
+        def from_checkpoint(cls, path: Union[str, Path]) -> "DQNRoutePlanner":
+            raise ImportError("PyTorch is required to load pretrained planners. Install torch to enable RL routing.")
+
 
 def build_default_planner(max_tasks: int) -> Tuple[VRPTWRoutingEnv, DQNRoutePlanner]:
     config = PlannerConfig(max_tasks=max_tasks)
     env = VRPTWRoutingEnv(config)
     planner = DQNRoutePlanner(env, config)
     return env, planner
+
+
+def load_pretrained_planner(checkpoint_path: Union[str, Path]) -> Tuple[VRPTWRoutingEnv, DQNRoutePlanner]:
+    if torch is None:
+        raise ImportError("PyTorch is required to load pretrained planners. Install torch to enable RL routing.")
+    planner = DQNRoutePlanner.from_checkpoint(checkpoint_path)
+    return planner.env, planner

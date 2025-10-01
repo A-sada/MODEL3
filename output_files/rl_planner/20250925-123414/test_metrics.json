@@ -1,0 +1,10 @@
+[
+  {
+    "subset": "r101.txt#subset2",
+    "num_tasks": 5,
+    "total_reward": -37.18552079875609,
+    "total_distance": 21.095023109728984,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  }
+]

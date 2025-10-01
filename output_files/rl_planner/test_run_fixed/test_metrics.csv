@@ -1,0 +1,2 @@
+subset,num_tasks,total_reward,total_distance,total_lateness,unassigned_tasks
+r101.txt#subset2,5,-60.1913,52.8792,0.0000,3

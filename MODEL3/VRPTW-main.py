@@ -1,6 +1,7 @@
 from classes import *
 import random
 from datetime import datetime
+from pathlib import Path
 from Negotiator import Nego1
 import math
 import pandas as pd
@@ -10,10 +11,10 @@ from balletin_are_search import create_time_zones
 from fun_for_test import route_check,check_arriva_list
 from VRPTW_functions import *
 from initialsolution import *
-from rl_route_planner import build_default_planner
+from rl_route_planner import load_pretrained_planner
 
 ENABLE_RL_ROUTING = True
-RL_TRAINING_EPISODES = 2000
+RL_PRETRAINED_CHECKPOINT = Path(__file__).resolve().parent / "pretrained" / "planner_checkpoint.pt"
 # from initial_ver2 import *
 # from initial_ver2 import *
 run_num = 0
@@ -21,10 +22,6 @@ tasks = []  # タスクを保存するためのリスト
 vehicles = []
 no_runs=[]
 N=200
-
-# Track RL runtime from post-training to shutdown when RL is active
-rl_post_training_start_time = None
-rl_training_executed = False
 
 #時間に関する掲示板
 b_board = pd.DataFrame({
@@ -70,7 +67,7 @@ with open(negotiation_log_path, 'w') as negotiation_log_file:
         "taskB_id,taskB_ready_time,taskB_due_date,taskB_weight\n"
     )
 ll=[]
-ll=read_task("r101.txt",tasks)
+ll=read_task("c104.txt",tasks)
 # ll=read_task("R2.TXT",tasks)
 max_xy = ll[0]
 max_time = ll[1]
@@ -95,24 +92,33 @@ for car in vehicles:
 route_planner = None
 if ENABLE_RL_ROUTING and vehicles:
     try:
-        max_route_tasks = max(len(vehicle.tasks) for vehicle in vehicles)
-        if max_route_tasks > 1:
-            env, route_planner = build_default_planner(max_route_tasks)
-            training_population = [vehicle for vehicle in vehicles if len(vehicle.tasks) > 1]
-            if training_population:
-                for _ in range(RL_TRAINING_EPISODES):
-                    vehicle = random.choice(training_population)
-                    route_planner.train_episode(list(vehicle.tasks), vehicle.max_weight, dep_x, dep_y)
-                rl_training_executed = True
+        checkpoint_override = os.getenv("RL_PLANNER_CHECKPOINT")
+        if checkpoint_override:
+            checkpoint_path = Path(checkpoint_override).expanduser().resolve()
+        else:
+            checkpoint_path = RL_PRETRAINED_CHECKPOINT
+
+        if not checkpoint_path.exists():
+            print(
+                f"RLプランナーのチェックポイントが見つかりません: {checkpoint_path}. "
+                "RLによる経路評価をスキップします。"
+            )
+        else:
+            _, route_planner = load_pretrained_planner(checkpoint_path)
+            max_route_tasks = max(len(vehicle.tasks) for vehicle in vehicles)
+            planner_max_tasks = getattr(route_planner.config, "max_tasks", None)
+            if planner_max_tasks is not None and max_route_tasks > planner_max_tasks:
+                print(
+                    f"RL警告: 必要なタスク数 {max_route_tasks} が事前学習モデルの対応上限 "
+                    f"{planner_max_tasks} を超えています。結果が不安定になる可能性があります。"
+                )
             for vehicle in vehicles:
                 vehicle.set_route_planner(route_planner)
+            print(f"事前学習済みRLプランナーを読み込みました: {checkpoint_path}")
     except ImportError as exc:
-        print(f"RL route planner disabled: {exc}")
+        print(f"RLルートプランナーを利用できません: {exc}")
     except Exception as exc:
-        print(f"Failed to initialise RL route planner: {exc}")
-
-if rl_training_executed:
-    rl_post_training_start_time = time.time()
+        print(f"事前学習済みRLプランナーの初期化に失敗しました: {exc}")
 
 
 #車両とIDの紐付け＿辞書
@@ -376,11 +382,3 @@ for negotiate_steps in range(MMM):
         # for i in range(len(log_nego)):
             # ファイル名を生成
         f.write(f"steps {negotiate_steps+1} CVN {log_CVN[negotiate_steps+1]} CRT {log_CRT[negotiate_steps+1]} n_neg {log_nego[negotiate_steps+1]}.\n")
-
-if rl_post_training_start_time is not None:
-    elapsed_after_rl = time.time() - rl_post_training_start_time
-    rl_runtime_message = f"RL学習後から終了までの経過時間 {elapsed_after_rl:.2f} 秒"
-    print(rl_runtime_message)
-    log_path = os.path.join(directory_name, "1log_main.txt")
-    with open(log_path, 'a') as f:
-        f.write(rl_runtime_message + "\n")

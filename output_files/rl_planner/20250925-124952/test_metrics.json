@@ -1,0 +1,402 @@
+[
+  {
+    "subset": "r101.txt#subset200",
+    "num_tasks": 10,
+    "total_reward": -27.22251237106322,
+    "total_distance": 13.691680412292467,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 8
+  },
+  {
+    "subset": "r101.txt#subset201",
+    "num_tasks": 15,
+    "total_reward": -23.262305898749055,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 14
+  },
+  {
+    "subset": "r101.txt#subset202",
+    "num_tasks": 5,
+    "total_reward": -34.52315765178449,
+    "total_distance": 22.80350850198276,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "subset": "r101.txt#subset203",
+    "num_tasks": 7,
+    "total_reward": -27.237903770226374,
+    "total_distance": 15.264337522473747,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset204",
+    "num_tasks": 6,
+    "total_reward": -59.38539030495629,
+    "total_distance": 46.872655894395876,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "subset": "r101.txt#subset205",
+    "num_tasks": 12,
+    "total_reward": -36.2990139468053,
+    "total_distance": 23.443348829783673,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset206",
+    "num_tasks": 7,
+    "total_reward": -28.784185480676726,
+    "total_distance": 17.204650534085253,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset207",
+    "num_tasks": 8,
+    "total_reward": -58.73740644845354,
+    "total_distance": 51.26378494272616,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset208",
+    "num_tasks": 11,
+    "total_reward": -25.962305898749054,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset209",
+    "num_tasks": 12,
+    "total_reward": -25.7,
+    "total_distance": 9.0,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 11
+  },
+  {
+    "subset": "r101.txt#subset210",
+    "num_tasks": 8,
+    "total_reward": -47.490666162160295,
+    "total_distance": 35.878517957955886,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset211",
+    "num_tasks": 13,
+    "total_reward": -42.14649137942578,
+    "total_distance": 28.384990421584202,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 11
+  },
+  {
+    "subset": "r101.txt#subset212",
+    "num_tasks": 12,
+    "total_reward": -27.237903770226374,
+    "total_distance": 15.264337522473747,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 11
+  },
+  {
+    "subset": "r101.txt#subset213",
+    "num_tasks": 8,
+    "total_reward": -28.149846624323676,
+    "total_distance": 9.055385138137417,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 7
+  },
+  {
+    "subset": "r101.txt#subset214",
+    "num_tasks": 6,
+    "total_reward": -23.262305898749055,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "subset": "r101.txt#subset215",
+    "num_tasks": 14,
+    "total_reward": -49.31955597979841,
+    "total_distance": 43.02172886644267,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 11
+  },
+  {
+    "subset": "r101.txt#subset216",
+    "num_tasks": 12,
+    "total_reward": -47.68274988973977,
+    "total_distance": 33.203055433044184,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset217",
+    "num_tasks": 11,
+    "total_reward": -26.38068251715641,
+    "total_distance": 15.422980574618233,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 9
+  },
+  {
+    "subset": "r101.txt#subset218",
+    "num_tasks": 11,
+    "total_reward": -28.149846624323676,
+    "total_distance": 9.055385138137417,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset219",
+    "num_tasks": 11,
+    "total_reward": -37.023611058184926,
+    "total_distance": 20.248456731316587,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset220",
+    "num_tasks": 6,
+    "total_reward": -34.52315765178449,
+    "total_distance": 22.80350850198276,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "subset": "r101.txt#subset221",
+    "num_tasks": 8,
+    "total_reward": -34.53679217601745,
+    "total_distance": 17.263102417797167,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset222",
+    "num_tasks": 5,
+    "total_reward": -19.962305898749054,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "subset": "r101.txt#subset223",
+    "num_tasks": 8,
+    "total_reward": -39.83838127595424,
+    "total_distance": 24.820423639949162,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset224",
+    "num_tasks": 8,
+    "total_reward": -46.70923522923373,
+    "total_distance": 36.454705810259696,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset225",
+    "num_tasks": 9,
+    "total_reward": -13.524922359499623,
+    "total_distance": 4.47213595499958,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 8
+  },
+  {
+    "subset": "r101.txt#subset226",
+    "num_tasks": 11,
+    "total_reward": -41.261606900598615,
+    "total_distance": 30.290674333998457,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 8
+  },
+  {
+    "subset": "r101.txt#subset227",
+    "num_tasks": 7,
+    "total_reward": -35.778897674779095,
+    "total_distance": 25.087664083087883,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "subset": "r101.txt#subset228",
+    "num_tasks": 11,
+    "total_reward": -28.149846624323676,
+    "total_distance": 9.055385138137417,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset229",
+    "num_tasks": 8,
+    "total_reward": -63.37025652930801,
+    "total_distance": 52.41139614367556,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset230",
+    "num_tasks": 12,
+    "total_reward": -47.022589794024114,
+    "total_distance": 32.80287754891569,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset231",
+    "num_tasks": 12,
+    "total_reward": -38.69974101966212,
+    "total_distance": 23.221934466291245,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset232",
+    "num_tasks": 10,
+    "total_reward": -48.22631605388318,
+    "total_distance": 36.36257339320353,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 8
+  },
+  {
+    "subset": "r101.txt#subset233",
+    "num_tasks": 9,
+    "total_reward": -52.755075933439855,
+    "total_distance": 38.83897325937761,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 7
+  },
+  {
+    "subset": "r101.txt#subset234",
+    "num_tasks": 11,
+    "total_reward": -37.023611058184926,
+    "total_distance": 20.248456731316587,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset235",
+    "num_tasks": 5,
+    "total_reward": -37.18552079875609,
+    "total_distance": 21.095023109728988,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 4
+  },
+  {
+    "subset": "r101.txt#subset236",
+    "num_tasks": 7,
+    "total_reward": -25.962305898749054,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset237",
+    "num_tasks": 13,
+    "total_reward": -40.6613229284702,
+    "total_distance": 27.957025476078,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 11
+  },
+  {
+    "subset": "r101.txt#subset238",
+    "num_tasks": 11,
+    "total_reward": -25.962305898749054,
+    "total_distance": 11.180339887498949,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 10
+  },
+  {
+    "subset": "r101.txt#subset239",
+    "num_tasks": 5,
+    "total_reward": -47.401619784636225,
+    "total_distance": 33.55735531626247,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 3
+  },
+  {
+    "subset": "r101.txt#subset240",
+    "num_tasks": 14,
+    "total_reward": -44.01887109345009,
+    "total_distance": 30.243190103833427,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 11
+  },
+  {
+    "subset": "r101.txt#subset241",
+    "num_tasks": 6,
+    "total_reward": -35.34558781116753,
+    "total_distance": 25.495097567963924,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 5
+  },
+  {
+    "subset": "r101.txt#subset242",
+    "num_tasks": 14,
+    "total_reward": -28.149846624323676,
+    "total_distance": 9.055385138137417,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 13
+  },
+  {
+    "subset": "r101.txt#subset243",
+    "num_tasks": 7,
+    "total_reward": -37.18552079875609,
+    "total_distance": 21.095023109728988,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset244",
+    "num_tasks": 9,
+    "total_reward": -35.34558781116753,
+    "total_distance": 25.495097567963924,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 8
+  },
+  {
+    "subset": "r101.txt#subset245",
+    "num_tasks": 11,
+    "total_reward": -46.78104776778482,
+    "total_distance": 35.201164186427576,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 9
+  },
+  {
+    "subset": "r101.txt#subset246",
+    "num_tasks": 11,
+    "total_reward": -27.61403992173313,
+    "total_distance": 9.571155468592364,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 9
+  },
+  {
+    "subset": "r101.txt#subset247",
+    "num_tasks": 11,
+    "total_reward": -40.04853341768455,
+    "total_distance": 24.720592686316166,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 9
+  },
+  {
+    "subset": "r101.txt#subset248",
+    "num_tasks": 7,
+    "total_reward": -22.93024947075771,
+    "total_distance": 15.811388300841896,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  },
+  {
+    "subset": "r101.txt#subset249",
+    "num_tasks": 7,
+    "total_reward": -34.52315765178449,
+    "total_distance": 22.80350850198276,
+    "total_lateness": 0.0,
+    "unassigned_tasks": 6
+  }
+]
