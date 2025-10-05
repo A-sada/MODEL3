@@ -68,6 +68,8 @@ class PlannerConfig:
     late_penalty: float = 5.0
     completion_bonus: float = 10.0
     infeasible_penalty: float = 25.0
+    valid_action_reward: float = 5.0
+    minimum_valid_reward: float = 0.1
 
     def to_dict(self) -> Dict[str, float | int]:
         return asdict(self)
@@ -163,11 +165,12 @@ class VRPTWRoutingEnv:
 
     def step(self, node_index: int) -> Tuple[GraphState, float, bool, Dict[str, float]]:
         if node_index < 0 or node_index >= len(self._tasks) or self._feasible_mask[node_index] < 0.5:
-            # Selected an infeasible action; give strong penalty and end episode
+            # Selected an infeasible action; apply penalty without changing state
             penalty = -self.config.infeasible_penalty
             self.total_reward += penalty
-            self._cached_graph_state = self._build_graph_state()
-            return self._cached_graph_state, penalty, True, {
+            if self._cached_graph_state is None:
+                self._cached_graph_state = self._build_graph_state()
+            return self._cached_graph_state, penalty, False, {
                 "total_distance": self.total_distance,
                 "total_lateness": self.total_lateness,
             }
@@ -179,7 +182,12 @@ class VRPTWRoutingEnv:
         finish_time = start_service + task.service_time
         lateness = max(0.0, finish_time - task.due_date)
 
-        reward = -travel_distance - self.config.wait_penalty * wait_time - self.config.late_penalty * lateness
+        cost_penalty = (
+            travel_distance
+            + self.config.wait_penalty * wait_time
+            + self.config.late_penalty * lateness
+        )
+        reward = self.config.minimum_valid_reward + max(0.0, self.config.valid_action_reward - cost_penalty)
         self.total_distance += travel_distance
         self.total_lateness += lateness
 
@@ -189,17 +197,22 @@ class VRPTWRoutingEnv:
         self.remaining_capacity -= task.weight
         self.route.append(task)
         self._visited_mask[node_index] = 1.0
+        visited_count = int(self._visited_mask.sum())
+        total_tasks = max(self._node_count, 1)
 
-        if self._visited_mask.sum() >= len(self._tasks):
-            reward += self.config.completion_bonus
-
-        self.total_reward += reward
         next_state = self._build_graph_state()
         self._cached_graph_state = next_state
         done = not bool(self._feasible_order)
+        if done:
+            completion_factor = visited_count / float(total_tasks)
+            reward += self.config.completion_bonus * completion_factor
+
+        self.total_reward += reward
         info = {
             "total_distance": self.total_distance,
             "total_lateness": self.total_lateness,
+            "visited_tasks": visited_count,
+            "visit_ratio": visited_count / float(total_tasks),
         }
         return next_state, reward, done, info
 
