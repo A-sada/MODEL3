@@ -47,11 +47,20 @@ USER_RUN_CONFIG = {
     / "rl_planner"
     / "20250925-124137"
     / "test_subsets.json",
+    "tabu_iterations": 200,
+    "tabu_tenure": 20,
+    "tabu_max_no_improve": 60,
+    "tabu_swap_depth": 5,
+    "tabu_relocation_depth": 5,
+    "tabu_candidate_pool": 60,
+    "tabu_seed": None,
+    "no_tabu": False,
 }
 
 try:
     from classes import Task
     from rl_route_planner import DQNRoutePlanner, PlannerConfig, VRPTWRoutingEnv
+    from tabu_route_planner import TabuRoutePlanner, TabuSearchConfig
 except ImportError as exc:  # pragma: no cover - surfacing missing dependency early
     raise RuntimeError("Failed to import RL planner dependencies. Run from the repository root or adjust PYTHONPATH.") from exc
 
@@ -446,6 +455,49 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip training and only evaluate using the provided checkpoint",
     )
+    parser.add_argument("--no-tabu", action="store_true", help="Skip tabu search baseline evaluation")
+    parser.add_argument(
+        "--tabu-iterations",
+        type=int,
+        default=200,
+        help="Maximum iterations for the tabu search baseline",
+    )
+    parser.add_argument(
+        "--tabu-tenure",
+        type=int,
+        default=20,
+        help="Lifetime of tabu moves in iterations",
+    )
+    parser.add_argument(
+        "--tabu-max-no-improve",
+        type=int,
+        default=60,
+        help="Stop tabu search after this many iterations without improvement",
+    )
+    parser.add_argument(
+        "--tabu-swap-depth",
+        type=int,
+        default=5,
+        help="Neighbourhood depth for swap moves in tabu search",
+    )
+    parser.add_argument(
+        "--tabu-relocation-depth",
+        type=int,
+        default=5,
+        help="Neighbourhood depth for relocation moves in tabu search",
+    )
+    parser.add_argument(
+        "--tabu-candidate-pool",
+        type=int,
+        default=60,
+        help="Maximum number of neighbour candidates evaluated per iteration",
+    )
+    parser.add_argument(
+        "--tabu-seed",
+        type=int,
+        default=None,
+        help="Optional random seed for the tabu search baseline",
+    )
     return parser.parse_args()
 
 
@@ -605,6 +657,40 @@ def main() -> None:
         write_json(output_dir / "test_summary.json", summary)
         print("Test evaluation summary:")
         print(json.dumps(summary, indent=2, ensure_ascii=False))
+
+        if getattr(args, "no_tabu", False):
+            print("Tabu baseline evaluation skipped (--no-tabu).")
+        else:
+            tabu_cfg = TabuSearchConfig(
+                max_iterations=max(1, int(getattr(args, "tabu_iterations", 200))),
+                tabu_tenure=max(1, int(getattr(args, "tabu_tenure", 20))),
+                max_no_improve=max(1, int(getattr(args, "tabu_max_no_improve", 60))),
+                candidate_pool_size=max(1, int(getattr(args, "tabu_candidate_pool", 60))),
+                swap_depth=max(1, int(getattr(args, "tabu_swap_depth", 5))),
+                relocation_depth=max(1, int(getattr(args, "tabu_relocation_depth", 5))),
+                seed=getattr(args, "tabu_seed", None) if getattr(args, "tabu_seed", None) is not None else int(args.seed),
+            )
+            tabu_planner = TabuRoutePlanner(config, tabu_cfg)
+            tabu_results = evaluate_subsets(tabu_planner, test_subsets)
+            export_evaluation(output_dir / "test_metrics_tabu.csv", tabu_results)
+            write_json(output_dir / "test_metrics_tabu.json", [res.to_serializable() for res in tabu_results])
+            tabu_summary = summarise_results(tabu_results)
+            write_json(output_dir / "test_summary_tabu.json", tabu_summary)
+            print("Tabu evaluation summary:")
+            print(json.dumps(tabu_summary, indent=2, ensure_ascii=False))
+
+            comparison = {
+                "rl": summary,
+                "tabu": tabu_summary,
+                "delta": {
+                    "avg_reward": summary["avg_reward"] - tabu_summary["avg_reward"],
+                    "avg_raw_reward": summary["avg_raw_reward"] - tabu_summary["avg_raw_reward"],
+                    "avg_distance": summary["avg_distance"] - tabu_summary["avg_distance"],
+                    "avg_lateness": summary["avg_lateness"] - tabu_summary["avg_lateness"],
+                    "avg_unassigned": summary["avg_unassigned"] - tabu_summary["avg_unassigned"],
+                },
+            }
+            write_json(output_dir / "comparison_summary.json", comparison)
     else:
         print("No test subsets generated; skipping evaluation")
 

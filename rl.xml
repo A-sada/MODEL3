@@ -1,0 +1,301 @@
+<mxfile host="app.diagrams.net" modified="2025-10-01T00:00:00.000Z" agent="Claude" version="24.0.0">
+  <diagram name="VRPTW強化学習システム" id="vrptw-rl-system">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 1. 環境初期化 -->
+        <mxCell id="section1" value="1. 環境初期化" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="init1" value="タスクリスト" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5ff;" vertex="1" parent="section1">
+          <mxGeometry x="20" y="40" width="240" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="init2" value="VRPTWRoutingEnv" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;" vertex="1" parent="section1">
+          <mxGeometry x="20" y="80" width="240" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="init3" value="状態ベクトル (7次元)&#xa;容量比・時刻・残タスク数等" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5ff;" vertex="1" parent="section1">
+          <mxGeometry x="20" y="120" width="240" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="init4" value="候補行動マトリクス&#xa;実行可能タスクの特徴量" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5ff;" vertex="1" parent="section1">
+          <mxGeometry x="20" y="160" width="240" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- 2. 行動選択 -->
+        <mxCell id="section2" value="2. 行動選択 (ε-greedy)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="360" y="40" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="action1" value="ε-greedy 判定" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;" vertex="1" parent="section2">
+          <mxGeometry x="80" y="40" width="120" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="action2" value="ランダム選択&#xa;(探索)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;" vertex="1" parent="section2">
+          <mxGeometry x="20" y="140" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="action3" value="Q値最大&#xa;(活用)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;" vertex="1" parent="section2">
+          <mxGeometry x="160" y="140" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 3. 環境ステップ -->
+        <mxCell id="section3" value="3. 環境ステップ実行" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="step1" value="タスク訪問" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1ffe1;" vertex="1" parent="section3">
+          <mxGeometry x="70" y="40" width="140" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="step2" value="報酬計算&#xa;-距離 -待ち -遅延&#xa;+完了ボーナス" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;" vertex="1" parent="section3">
+          <mxGeometry x="20" y="85" width="110" height="55" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="step3" value="次の状態&#xa;次の候補" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1ffe1;" vertex="1" parent="section3">
+          <mxGeometry x="150" y="85" width="110" height="55" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="step4" value="経験を保存&#xa;(s, a, r, s', done)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;" vertex="1" parent="section3">
+          <mxGeometry x="60" y="155" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- 4. 学習ステップ -->
+        <mxCell id="section4" value="4. 学習ステップ (DQN)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="40" width="320" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="learn1" value="リプレイバッファ" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;" vertex="1" parent="section4">
+          <mxGeometry x="110" y="40" width="100" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="learn2" value="バッチサンプリング&#xa;(64個の経験)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe1e1;" vertex="1" parent="section4">
+          <mxGeometry x="90" y="115" width="140" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="learn3" value="Policy Network&#xa;現在Q値" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0e1ff;" vertex="1" parent="section4">
+          <mxGeometry x="20" y="165" width="130" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="learn4" value="Target Network&#xa;次状態最大Q値" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0e1ff;" vertex="1" parent="section4">
+          <mxGeometry x="170" y="165" width="130" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="learn5" value="MSE Loss 計算" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe1e1;" vertex="1" parent="section4">
+          <mxGeometry x="90" y="220" width="140" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="learn6" value="勾配降下法" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe1e1;" vertex="1" parent="section4">
+          <mxGeometry x="90" y="260" width="140" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 5. ネットワーク更新 -->
+        <mxCell id="section5" value="5. ネットワーク更新" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="360" width="280" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sync1" value="250ステップごと?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f5d5ff;" vertex="1" parent="section5">
+          <mxGeometry x="80" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sync2" value="Target Network同期" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0e1ff;" vertex="1" parent="section5">
+          <mxGeometry x="60" y="115" width="160" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 6. ニューラルネットワーク構造 -->
+        <mxCell id="section6" value="ニューラルネットワーク構造" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f0e1ff;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="nn1" value="入力層 (15次元)&#xa;状態7 + 行動8" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5d5ff;" vertex="1" parent="section6">
+          <mxGeometry x="40" y="40" width="200" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="nn2" value="隠れ層1&#xa;128ユニット + ReLU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5d5ff;" vertex="1" parent="section6">
+          <mxGeometry x="40" y="85" width="200" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="nn3" value="隠れ層2&#xa;128ユニット + ReLU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5d5ff;" vertex="1" parent="section6">
+          <mxGeometry x="40" y="130" width="200" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="nn4" value="出力層&#xa;Q値 (1次元)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5d5ff;" vertex="1" parent="section6">
+          <mxGeometry x="40" y="175" width="200" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- 7. 探索率減衰 -->
+        <mxCell id="section7" value="6. 探索率減衰" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="360" y="280" width="280" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="decay1" value="ε × 0.995" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;" vertex="1" parent="section7">
+          <mxGeometry x="70" y="45" width="140" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="decay2" value="次エピソード" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1ffe1;" vertex="1" parent="section7">
+          <mxGeometry x="70" y="85" width="140" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 完了判定 -->
+        <mxCell id="done1" value="エピソード終了&#xa;ルート完成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1ffe1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="700" y="300" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 矢印 -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="init3" target="action1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="action1" target="action2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="action1" target="action3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="action2" target="step1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="200" />
+              <mxPoint x="660" y="95" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="step1" target="step2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="820" y="100" />
+              <mxPoint x="735" y="100" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="step2" target="step4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="735" y="150" />
+              <mxPoint x="820" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="step4" target="learn1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="learn1" target="learn2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="learn2" target="learn3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="160" />
+              <mxPoint x="1085" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="learn2" target="learn4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="160" />
+              <mxPoint x="1235" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="learn3" target="learn5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="learn4" target="learn5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="learn5" target="learn6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="learn6" target="sync1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="340" />
+              <mxPoint x="1140" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="sync1" target="sync2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="sync2" target="decay1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900" y="490" />
+              <mxPoint x="900" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="decay1" target="decay2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;dashed=1;" edge="1" parent="1" source="decay2" target="init1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="395" />
+              <mxPoint x="20" y="95" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeWidth=2;" edge="1" parent="1" source="step3" target="done1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900" y="153" />
+              <mxPoint x="900" y="325" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeWidth=1;dashed=1;" edge="1" parent="1" source="step3" target="action1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="153" />
+              <mxPoint x="850" y="20" />
+              <mxPoint x="500" y="20" />
+              <mxPoint x="500" y="120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ラベル -->
+        <mxCell id="label1" value="done=False&#xa;継続" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="660" y="10" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label2" value="done=True&#xa;終了" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="870" y="270" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label3" value="確率 ε" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="350" y="130" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label4" value="確率 1-ε" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="550" y="130" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
