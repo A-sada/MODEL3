@@ -1,0 +1,22 @@
+# CPU-only image for RL route planner
+FROM python:3.10-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# PyTorch CPU wheels
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir numpy && \
+    pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu "torch>=2.3"
+
+# Project Python deps
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+WORKDIR /app
+CMD ["bash"]
