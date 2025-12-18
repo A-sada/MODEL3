@@ -253,6 +253,11 @@ class Vehicle(Vehicle_BASE):
         over_late = 10 * (self.bulletin_board.n_steps / self.bulletin_board.max_steps) ** 2
         distance_late = 0.5
         cost_saving = (-1)*slack_late * slack_cost + over_late * over_cost + distance_late * distans_cost
+        q_scores = self.discounted_q_scores_for_exchange(remove_task, give_task)
+        if q_scores is not None:
+            remove_score = q_scores.get(remove_task.id, 0.0) if remove_task is not None else 0.0
+            give_score = q_scores.get(give_task.id, 0.0) if give_task is not None else 0.0
+            cost_saving += self.q_importance_weight * (remove_score - give_score)
         #print(f"車両{self.id}のコスト削減は{cost_saving}")
         return cost_saving
 

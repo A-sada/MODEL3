@@ -1,0 +1,27 @@
+# Runtime image to launch the VRPTW simulation with the pretrained RL planner
+FROM python:3.10-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Torch (CPU) first so other deps detect it if needed
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu "torch>=2.3"
+
+# Project dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+WORKDIR /app
+COPY . /app
+
+# Default: use the latest checkpoint in the repo; override at runtime if needed
+ENV PYTHONPATH=/app:/app/MODEL3 \
+    RL_PLANNER_CHECKPOINT=/app/output_files/rl_planner/20251007-080222/planner_checkpoint.pt
+
+ENTRYPOINT ["python", "MODEL3/VRPTW-main.py"]

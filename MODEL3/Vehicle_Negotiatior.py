@@ -36,6 +36,11 @@ class VehicleNegotiator(SAONegotiator):
         tasks,
         is_vehicle_a,
         task_a,
+        route_planner=None,
+        dep_x: float = 0.0,
+        dep_y: float = 0.0,
+        max_weight: float | None = None,
+        q_importance_weight: float = 1.0,
         negotiation_id=None,
         counterparty_id: int | str | None = None,
         log_path: str | None = None,
@@ -59,12 +64,56 @@ class VehicleNegotiator(SAONegotiator):
         self.arrival_time_list=[]
         self.flag = 0
         self.current_weight = 0
-        self.max_weight = 100
+        self.max_weight = max_weight if max_weight is not None else 100
+        self.route_planner = route_planner
+        self.dep_x = dep_x
+        self.dep_y = dep_y
+        self.q_importance_weight = q_importance_weight
+        self._q_importance_cache = {}
         self.negotiation_id = negotiation_id
         self.counterparty_id = counterparty_id
         self.log_path = log_path
         super().__init__(preferences, ufun, name, parent, owner, id, type_name, can_propose)
         #self.add_capabilities(dict(propose_for_self=True))
+
+    def _importance_cache_key(self, tasks):
+        return tuple(task.id for task in tasks)
+
+    def _discounted_q_task_scores(self, tasks):
+        if self.route_planner is None or tasks is None:
+            return None
+        task_list = list(tasks)
+        if not task_list:
+            return {}
+        cache_key = self._importance_cache_key(task_list)
+        cached = self._q_importance_cache.get(cache_key)
+        if cached is not None:
+            return cached
+        try:
+            scores = self.route_planner.discounted_q_task_scores(
+                task_list, self.max_weight, self.dep_x, self.dep_y
+            )
+        except Exception:
+            return None
+        self._q_importance_cache[cache_key] = scores
+        return scores
+
+    def _importance_scores_for_exchange(self, remove_task, give_task):
+        if self.route_planner is None:
+            return None
+        tasks = list(self.tasks)
+        for task in (remove_task, give_task):
+            if task is not None and task not in tasks:
+                tasks.append(task)
+        return self._discounted_q_task_scores(tasks)
+
+    def _adjust_cost_with_importance(self, cost, remove_task, give_task):
+        scores = self._importance_scores_for_exchange(remove_task, give_task)
+        if scores is None:
+            return cost
+        remove_score = scores.get(remove_task.id, 0.0) if remove_task is not None else 0.0
+        give_score = scores.get(give_task.id, 0.0) if give_task is not None else 0.0
+        return cost + self.q_importance_weight * (remove_score - give_score)
 
     def propose(self, state: SAOState, dest: Optional[str] = None):
         # 提案のロジックを実装
@@ -124,17 +173,23 @@ class VehicleNegotiator(SAONegotiator):
         if self.is_vehicle_a:
             task_b = offer["taskB"]
             if len(self.tasks) < 3:
-                cost=calculate_cost_saving(self.arrival_time_list,offer["taskA"],offer["taskB"],self.tasks,self.bulletin_board)
+                base_cost = calculate_cost_saving(
+                    self.arrival_time_list, offer["taskA"], offer["taskB"], self.tasks, self.bulletin_board
+                )
+                cost = self._adjust_cost_with_importance(base_cost, offer["taskA"], offer["taskB"])
                 if task_b == None:
                     return ResponseType.ACCEPT_OFFER
                 elif self.current_weight + task_b.weight > self.max_weight:
                     return ResponseType.REJECT_OFFER
-                elif calculate_cost_saving(self.arrival_time_list,offer["taskA"],offer["taskB"],self.tasks,self.bulletin_board) < 0:
+                elif cost < 0:
                     return ResponseType.ACCEPT_OFFER
                 else:
                     return ResponseType.REJECT_OFFER
             else:
-                cost = calculate_cost_saving(self.arrival_time_list,offer["taskA"],offer["taskB"],self.tasks,self.bulletin_board)
+                base_cost = calculate_cost_saving(
+                    self.arrival_time_list, offer["taskA"], offer["taskB"], self.tasks, self.bulletin_board
+                )
+                cost = self._adjust_cost_with_importance(base_cost, offer["taskA"], offer["taskB"])
                 if task_b == None:
                     return ResponseType.ACCEPT_OFFER 
                 if task_b != None:
@@ -173,8 +228,12 @@ class VehicleNegotiator(SAONegotiator):
         cost={}
         rt_list = []
         for pac in self.arrival_time_list:
-            cost[pac.task] =calculate_cost_saving(self.arrival_time_list,pac.task,taskA,self.tasks,self.bulletin_board)
-        cost["0"] = calculate_cost_saving(self.arrival_time_list,None,taskA,self.tasks,self.bulletin_board)
+            base_cost = calculate_cost_saving(
+                self.arrival_time_list, pac.task, taskA, self.tasks, self.bulletin_board
+            )
+            cost[pac.task] = self._adjust_cost_with_importance(base_cost, pac.task, taskA)
+        base_cost = calculate_cost_saving(self.arrival_time_list, None, taskA, self.tasks, self.bulletin_board)
+        cost["0"] = self._adjust_cost_with_importance(base_cost, None, taskA)
         sorted_cost = sorted(cost.items(), key=lambda x:x[1])
         for i in sorted_cost:
             if i[0] in remove_list:

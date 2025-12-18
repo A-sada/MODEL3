@@ -27,7 +27,7 @@ USER_RUN_CONFIG = {
     "test_samples": 50,
     "subset_min": 3,
     "subset_max": 20,
-    "train_episodes": 100000,
+    "train_episodes": 1500,
     "seed": 42,
     "log_interval": 50,
     "learning_rate": 1e-3,
@@ -59,6 +59,7 @@ USER_RUN_CONFIG = {
 
 try:
     from classes import Task
+    from VRPTW_functions3 import verify_route_time_windows
     from rl_route_planner import DQNRoutePlanner, PlannerConfig, VRPTWRoutingEnv
     from tabu_route_planner import TabuRoutePlanner, TabuSearchConfig
 except ImportError as exc:  # pragma: no cover - surfacing missing dependency early
@@ -144,6 +145,8 @@ class EvaluationResult:
     total_distance: float
     total_lateness: float
     unassigned_tasks: int
+    time_window_violations: int
+    max_lateness: float
 
     def to_serializable(self) -> dict:
         return {
@@ -154,6 +157,8 @@ class EvaluationResult:
             "total_distance": self.total_distance,
             "total_lateness": self.total_lateness,
             "unassigned_tasks": self.unassigned_tasks,
+            "time_window_violations": self.time_window_violations,
+            "max_lateness": self.max_lateness,
         }
 
 
@@ -318,6 +323,9 @@ def evaluate_subsets(planner: DQNRoutePlanner, subsets: Iterable[TaskSubset]) ->
         tasks = subset.fresh_tasks()
         route, info = planner.plan_route(tasks, subset.capacity, subset.depot[0], subset.depot[1], greedy=True)
         key = f"{subset.instance}#subset{subset.subset_id}"
+        violations = verify_route_time_windows(route, subset.depot[0], subset.depot[1])
+        violation_count = len(violations)
+        max_lateness = max((item["lateness"] for item in violations), default=0.0)
         results.append(
             EvaluationResult(
                 subset_key=key,
@@ -327,6 +335,8 @@ def evaluate_subsets(planner: DQNRoutePlanner, subsets: Iterable[TaskSubset]) ->
                 total_distance=float(info.get("total_distance", 0.0)),
                 total_lateness=float(info.get("total_lateness", 0.0)),
                 unassigned_tasks=int(info.get("unassigned_tasks", 0)),
+                time_window_violations=violation_count,
+                max_lateness=max_lateness,
             )
         )
     return results
@@ -376,11 +386,16 @@ def train_planner(
 
 
 def export_evaluation(path: Path, results: Sequence[EvaluationResult]) -> None:
-    header = "subset,num_tasks,total_reward,raw_total_reward,total_distance,total_lateness,unassigned_tasks\n"
+    header = (
+        "subset,num_tasks,total_reward,raw_total_reward,total_distance,total_lateness,"
+        "unassigned_tasks,time_window_violations,max_lateness\n"
+    )
     lines = [header]
     for res in results:
         lines.append(
-            f"{res.subset_key},{res.num_tasks},{res.total_reward:.4f},{res.raw_total_reward:.4f},{res.total_distance:.4f},{res.total_lateness:.4f},{res.unassigned_tasks}\n"
+            f"{res.subset_key},{res.num_tasks},{res.total_reward:.4f},{res.raw_total_reward:.4f},"
+            f"{res.total_distance:.4f},{res.total_lateness:.4f},{res.unassigned_tasks},"
+            f"{res.time_window_violations},{res.max_lateness:.4f}\n"
         )
     with path.open("w", encoding="utf-8") as handle:
         handle.writelines(lines)
@@ -657,6 +672,17 @@ def main() -> None:
         write_json(output_dir / "test_summary.json", summary)
         print("Test evaluation summary:")
         print(json.dumps(summary, indent=2, ensure_ascii=False))
+
+        violating_results = [res for res in results if res.time_window_violations > 0]
+        if violating_results:
+            detail_snippet = ", ".join(
+                f"{res.subset_key}:違反{res.time_window_violations}件/最大遅延{res.max_lateness:.2f}"
+                for res in violating_results[:5]
+            )
+            raise RuntimeError(
+                "RL評価で時間枠制約違反が検出されたため、ベースラインとの性能比較を中止します。"
+                f" 対象サブセット数: {len(violating_results)} 件 (例: {detail_snippet})"
+            )
 
         if getattr(args, "no_tabu", False):
             print("Tabu baseline evaluation skipped (--no-tabu).")

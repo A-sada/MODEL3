@@ -282,6 +282,11 @@ class Vehicle(Vehicle_BASE):
         rl_cost = self._route_planner_cost_adjustment(remove_task, give_task)
         if rl_cost is not None:
             cost_saving += rl_cost
+        q_scores = self.discounted_q_scores_for_exchange(remove_task, give_task)
+        if q_scores is not None:
+            remove_score = q_scores.get(remove_task.id, 0.0) if remove_task is not None else 0.0
+            give_score = q_scores.get(give_task.id, 0.0) if give_task is not None else 0.0
+            cost_saving += self.q_importance_weight * (remove_score - give_score)
         #print(f"車両{self.id}のコスト削減は{cost_saving}")
         return cost_saving
 

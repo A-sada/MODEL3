@@ -1,4 +1,6 @@
 import math
+from typing import Dict, List, Sequence
+
 from classes import Task,pac_task,Agree,pac_task
 
 ENABLE_ROUTE_PLOTS = False
@@ -346,6 +348,52 @@ def sum_travel_time(car_list):
     for car in car_list:
         time += cal_travel_time(car.tasks,car.dep_x,car.dep_y)
     return time
+
+
+def verify_route_time_windows(
+    route: Sequence[Task],
+    dep_x: float,
+    dep_y: float,
+    *,
+    start_time: float = 0.0,
+    tolerance: float = 1e-6,
+) -> List[Dict[str, float]]:
+    """Return a list of time-window violations for the given route.
+
+    Each violation dictionary contains the task index, task id, arrival/start/finish times,
+    the due date, and the computed lateness. An empty list means the route is feasible.
+    """
+
+    violations: List[Dict[str, float]] = []
+    current_x = dep_x
+    current_y = dep_y
+    current_time = start_time
+
+    for idx, task in enumerate(route):
+        travel_time = math.hypot(current_x - task.x_coordinate, current_y - task.y_coordinate)
+        arrival_time = current_time + travel_time
+        start_service = max(arrival_time, task.ready_time)
+        finish_time = start_service + task.service_time
+        lateness = finish_time - task.due_date
+
+        if lateness > tolerance:
+            violations.append(
+                {
+                    "index": float(idx),
+                    "task_id": float(task.id),
+                    "arrival_time": arrival_time,
+                    "start_service": start_service,
+                    "finish_time": finish_time,
+                    "due_date": task.due_date,
+                    "lateness": lateness,
+                }
+            )
+
+        current_x = task.x_coordinate
+        current_y = task.y_coordinate
+        current_time = finish_time
+
+    return violations
 import os
 def plot_vehicle_routes(vehicles,directory_name,negotiate_steps):
     if not ENABLE_ROUTE_PLOTS or plt is None:

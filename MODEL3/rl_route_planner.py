@@ -6,7 +6,7 @@ import random
 from collections import deque
 from dataclasses import MISSING, dataclass, asdict, fields
 from pathlib import Path
-from typing import Any, Deque, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Deque, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import numpy as np
 
@@ -68,6 +68,7 @@ class PlannerConfig:
     late_penalty: float = 5.0
     completion_bonus: float = 10.0
     infeasible_penalty: float = 25.0
+    time_window_failure_penalty: float = 60.0
     valid_action_reward: float = 5.0
     minimum_valid_reward: float = 0.1
 
@@ -109,6 +110,8 @@ class VRPTWRoutingEnv:
         self._time_scale: float = 1.0
         self._distance_scale: float = 1.0
         self.route: List[Task] = []
+        self.failed_task_ids: Set[int] = set()
+        self.failed_tasks: List[Task] = []
         self.total_reward: float = 0.0
         self.total_distance: float = 0.0
         self.total_lateness: float = 0.0
@@ -131,6 +134,8 @@ class VRPTWRoutingEnv:
         self.current_x, self.current_y = dep_x, dep_y
         self.current_time = 0.0
         self.route = []
+        self.failed_task_ids.clear()
+        self.failed_tasks = []
         self.total_reward = 0.0
         self.total_distance = 0.0
         self.total_lateness = 0.0
@@ -181,6 +186,22 @@ class VRPTWRoutingEnv:
         start_service = arrival_time + wait_time
         finish_time = start_service + task.service_time
         lateness = max(0.0, finish_time - task.due_date)
+
+        if lateness > 0.0:
+            if task.id not in self.failed_task_ids:
+                self.failed_task_ids.add(task.id)
+                self.failed_tasks.append(task)
+            penalty = -self.config.time_window_failure_penalty
+            self.total_reward += penalty
+            self._feasible_mask[node_index] = 0.0
+            self._feasible_order = [idx for idx in self._feasible_order if idx != node_index]
+            next_state = self._build_graph_state()
+            self._cached_graph_state = next_state
+            return next_state, penalty, False, {
+                "total_distance": self.total_distance,
+                "total_lateness": self.total_lateness,
+                "failed_tasks": len(self.failed_tasks),
+            }
 
         cost_penalty = (
             travel_distance
@@ -380,6 +401,9 @@ class VRPTWRoutingEnv:
             dynamic, feasible, travel_norm, slack_norm, due_norm, ready_norm = self._compute_dynamic_features(
                 task, bool(visited_mask[idx])
             )
+            if task.id in self.failed_task_ids:
+                feasible = False
+                dynamic[1] = 0.0
             node_features[idx, _NODE_STATIC_DIM:] = dynamic
             if visited_mask[idx] < 0.5:
                 travel_vals.append(travel_norm)
@@ -658,6 +682,56 @@ if torch is not None:
             context = torch.from_numpy(state.context).unsqueeze(0).float().to(self.device)
             return node_features, node_mask, context
 
+        def _predict_q_values(self, state: GraphState) -> np.ndarray:
+            node_features, node_mask, context = self._state_to_tensors(state)
+            with torch.no_grad():
+                q_values = self.policy_net(node_features, node_mask, context).squeeze(0)
+            return q_values.detach().cpu().numpy()
+
+        def discounted_q_task_scores(
+            self,
+            tasks: Sequence[Task],
+            capacity: float,
+            dep_x: float,
+            dep_y: float,
+            greedy: bool = True,
+        ) -> Dict[int, float]:
+            """Compute per-task discounted-average Q scores across a rollout."""
+            task_list = list(tasks)
+            if not task_list:
+                return {}
+            state = self.env.reset(task_list, capacity, dep_x, dep_y)
+            score_sum = {task.id: 0.0 for task in task_list}
+            weight_sum = {task.id: 0.0 for task in task_list}
+            discount = 1.0
+            gamma = float(self.config.gamma)
+
+            was_training = self.policy_net.training
+            self.policy_net.eval()
+            try:
+                done = False
+                while not done:
+                    feasible = state.feasible_indices()
+                    if feasible.size == 0:
+                        break
+                    q_values = self._predict_q_values(state)
+                    for idx in feasible:
+                        task_id = task_list[int(idx)].id
+                        score_sum[task_id] += discount * float(q_values[int(idx)])
+                        weight_sum[task_id] += discount
+                    action_index = self.select_action(state, exploration=not greedy)
+                    state, _, done, _ = self.env.step(action_index)
+                    discount *= gamma
+            finally:
+                if was_training:
+                    self.policy_net.train()
+
+            scores: Dict[int, float] = {}
+            for task in task_list:
+                weight = weight_sum.get(task.id, 0.0)
+                scores[task.id] = score_sum[task.id] / weight if weight > 0.0 else 0.0
+            return scores
+
         def select_action(self, state: GraphState, exploration: bool = True) -> int:
             feasible_indices = state.feasible_indices()
             if feasible_indices.size == 0:
@@ -767,7 +841,8 @@ if torch is not None:
                 action_index = self.select_action(state, exploration=not greedy)
                 state, _, done, info = self.env.step(action_index)
             route = list(self.env.route)
-            remaining_ids = {task.id for task in tasks} - {task.id for task in route}
+            failed_ids = set(self.env.failed_task_ids)
+            remaining_ids = ({task.id for task in tasks} - {task.id for task in route}) - failed_ids
             task_count = max(len(tasks), 1)
             averaged_reward = self.env.total_reward / float(task_count)
             info = {
@@ -776,10 +851,14 @@ if torch is not None:
                 "total_distance": self.env.total_distance,
                 "total_lateness": self.env.total_lateness,
                 "unassigned_tasks": len(remaining_ids),
+                "failed_tasks": len(self.env.failed_tasks),
             }
             if remaining_ids:
                 leftovers = [task for task in tasks if task.id in remaining_ids]
                 route.extend(leftovers)
+            if self.env.failed_tasks:
+                info["failed_task_ids"] = [task.id for task in self.env.failed_tasks]
+                info["failed_task_ratio"] = len(self.env.failed_tasks) / float(task_count)
             return route, info
 
         def save(self, path: str | Path) -> None:
@@ -842,6 +921,16 @@ else:
         @classmethod
         def from_checkpoint(cls, path: Union[str, Path]) -> "DQNRoutePlanner":
             raise ImportError("PyTorch is required to load pretrained planners. Install torch to enable RL routing.")
+
+        def discounted_q_task_scores(
+            self,
+            tasks: Sequence[Task],
+            capacity: float,
+            dep_x: float,
+            dep_y: float,
+            greedy: bool = True,
+        ) -> Dict[int, float]:
+            raise ImportError("PyTorch is required to compute discounted Q scores for tasks.")
 
 
 def build_default_planner(max_tasks: int) -> Tuple[VRPTWRoutingEnv, DQNRoutePlanner]:

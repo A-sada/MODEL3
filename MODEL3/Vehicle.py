@@ -36,6 +36,8 @@ class Vehicle_BASE:
         self.exchange_flag = 0
         self.route_planner = None
         self.negotiation_log_path: Optional[str] = None
+        self.q_importance_weight = 1.0
+        self._q_importance_cache = {}
     #掲示板を取得
     def set_balletin(self,balletin : Balletin):
         self.bulletin_board = balletin
@@ -55,6 +57,48 @@ class Vehicle_BASE:
             return info
         except Exception:
             return None
+
+    def _importance_cache_key(self, tasks):
+        return tuple(task.id for task in tasks)
+
+    def discounted_q_task_scores(self, tasks):
+        if self.route_planner is None or tasks is None:
+            return None
+        task_list = list(tasks)
+        if not task_list:
+            return {}
+        cache_key = self._importance_cache_key(task_list)
+        cached = self._q_importance_cache.get(cache_key)
+        if cached is not None:
+            return cached
+        try:
+            scores = self.route_planner.discounted_q_task_scores(
+                task_list, self.max_weight, self.dep_x, self.dep_y
+            )
+        except Exception:
+            return None
+        self._q_importance_cache[cache_key] = scores
+        return scores
+
+    def discounted_q_scores_for_exchange(self, remove_task, give_task):
+        if self.route_planner is None:
+            return None
+        tasks = list(self.tasks)
+        for task in (remove_task, give_task):
+            if task is not None and task not in tasks:
+                tasks.append(task)
+        return self.discounted_q_task_scores(tasks)
+
+    def task_importance_score(self, task, tasks=None):
+        if self.route_planner is None or task is None:
+            return None
+        base_tasks = list(tasks) if tasks is not None else list(self.tasks)
+        if task not in base_tasks:
+            base_tasks.append(task)
+        scores = self.discounted_q_task_scores(base_tasks)
+        if scores is None:
+            return None
+        return scores.get(task.id)
 
     #1日の最初に呼び出される
     def first_step(self):
@@ -173,6 +217,11 @@ class Vehicle_BASE:
             self.tasks,
             is_vehicle_a=initial_can_propose,
             task_a=self.propose_task,
+            route_planner=self.route_planner,
+            dep_x=self.dep_x,
+            dep_y=self.dep_y,
+            max_weight=self.max_weight,
+            q_importance_weight=self.q_importance_weight,
             negotiation_id=negotiation_id,
             log_path=self.negotiation_log_path,
             counterparty_id=counterparty_id,

@@ -1,0 +1,13 @@
+steps 0 CVN 18 CRT 3978 n_neg 0.
+steps 1 CVN 18 CRT 3552 n_neg 9.
+steps 2 CVN 18 CRT 3326 n_neg 9.
+steps 3 CVN 18 CRT 3118 n_neg 9.
+steps 4 CVN 18 CRT 3144 n_neg 9.
+steps 5 CVN 18 CRT 3111 n_neg 8.
+steps 6 CVN 18 CRT 3228 n_neg 9.
+steps 7 CVN 17 CRT 3081 n_neg 9.
+steps 8 CVN 17 CRT 3067 n_neg 8.
+steps 9 CVN 17 CRT 2823 n_neg 8.
+steps 10 CVN 17 CRT 2723 n_neg 8.
+steps 11 CVN 17 CRT 2814 n_neg 8.
+steps 12 CVN 17 CRT 2796 n_neg 8.

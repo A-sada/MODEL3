@@ -14,6 +14,7 @@ from typing import Dict, Iterable, List, Sequence
 from classes import Task
 from rl_route_planner import load_pretrained_planner
 from train_rl_route_planner import parse_vrptw_instance
+from VRPTW_functions3 import verify_route_time_windows
 
 
 @dataclass
@@ -26,6 +27,8 @@ class RouteEvaluation:
     total_distance: float
     total_lateness: float
     unassigned_tasks: int
+    time_window_violations: int
+    max_lateness: float
 
     def to_dict(self) -> Dict[str, object]:
         return {
@@ -37,6 +40,8 @@ class RouteEvaluation:
             "total_distance": self.total_distance,
             "total_lateness": self.total_lateness,
             "unassigned_tasks": self.unassigned_tasks,
+            "time_window_violations": self.time_window_violations,
+            "max_lateness": self.max_lateness,
         }
 
 
@@ -115,6 +120,9 @@ def evaluate_routes(
         tasks = build_tasks(route_ids, instance_tasks)
         planned, info = planner.plan_route(tasks, capacity, depot_x, depot_y, greedy=True)
         planned_ids = [task.id for task in planned]
+        violations = verify_route_time_windows(planned, depot_x, depot_y)
+        violation_count = len(violations)
+        max_lateness = max((item["lateness"] for item in violations), default=0.0)
         evaluation = RouteEvaluation(
             route_index=index,
             requested_tasks=requested,
@@ -124,6 +132,8 @@ def evaluate_routes(
             total_distance=float(info.get("total_distance", 0.0)),
             total_lateness=float(info.get("total_lateness", 0.0)),
             unassigned_tasks=int(info.get("unassigned_tasks", 0)),
+            time_window_violations=violation_count,
+            max_lateness=max_lateness,
         )
         results.append(evaluation)
     return results
@@ -169,6 +179,8 @@ def write_outputs(
                 "total_distance",
                 "total_lateness",
                 "unassigned_tasks",
+                "time_window_violations",
+                "max_lateness",
             ]
         )
         for item in results:
@@ -182,6 +194,8 @@ def write_outputs(
                     f"{item.total_distance:.6f}",
                     f"{item.total_lateness:.6f}",
                     item.unassigned_tasks,
+                    item.time_window_violations,
+                    f"{item.max_lateness:.6f}",
                 ]
             )
     json_path = output_dir / "routes.json"
@@ -247,6 +261,17 @@ def main(argv: Sequence[str] | None = None) -> None:
     )
     summary = summarise(results)
 
+    violating_routes = [res for res in results if res.time_window_violations > 0]
+    if violating_routes:
+        detail = ", ".join(
+            f"Route{res.route_index}:違反{res.time_window_violations}件/最大遅延{res.max_lateness:.2f}"
+            for res in violating_routes[:5]
+        )
+        raise RuntimeError(
+            "RLプランナーが生成したルートに時間枠制約違反が含まれているため評価を中止します。"
+            f" 対象ルート数: {len(violating_routes)} 件 (例: {detail})"
+        )
+
     if args.output_dir is not None:
         output_dir = args.output_dir.expanduser().resolve()
     else:
@@ -259,7 +284,8 @@ def main(argv: Sequence[str] | None = None) -> None:
         print(
             f"Route {item.route_index:02d}: requested={item.requested_tasks} planned={item.planned_route} "
             f"reward={item.total_reward:.3f} distance={item.total_distance:.3f} "
-            f"lateness={item.total_lateness:.3f} unassigned={item.unassigned_tasks}"
+            f"lateness={item.total_lateness:.3f} unassigned={item.unassigned_tasks} "
+            f"violations={item.time_window_violations} max_lateness={item.max_lateness:.3f}"
         )
     print("平均統計:")
     print(json.dumps(summary, indent=2, ensure_ascii=False))
