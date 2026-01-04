@@ -1,7 +1,7 @@
 import random
 import os
 import copy
-from Strategy_Vehicle_ver1 import Vehicle
+from Strategy_Vehicle_verX import Vehicle
 from classes import Task
 from VRPTW_functions import euclidean_distance
 from fun_for_test import route_check   

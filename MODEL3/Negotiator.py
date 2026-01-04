@@ -1,4 +1,4 @@
-from Strategy_Vehicle_ver1 import Vehicle
+from Strategy_Vehicle_verX import Vehicle
 from negmas import SAOMechanism
 from negmas.utilities import UtilityFunction
 from negmas.outcomes import Outcome
@@ -16,5 +16,4 @@ def Nego1(vehicleA,vehicleB,NegA,NegB):
     result = mechanism.run()
     # print(mechanism.log)
     return result
-
 
