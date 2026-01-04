@@ -17,11 +17,21 @@ RUN pip install --upgrade pip && \
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
+# Create a user that matches the host UID/GID to avoid root-owned outputs
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} sadahiro \
+    && useradd -m -u ${UID} -g ${GID} sadahiro
+
 WORKDIR /app
 COPY . /app
+RUN mkdir -p /app/output_files \
+    && chown -R sadahiro:sadahiro /app
 
 # Default: use the latest checkpoint in the repo; override at runtime if needed
 ENV PYTHONPATH=/app:/app/MODEL3 \
     RL_PLANNER_CHECKPOINT=/app/output_files/rl_planner/20251007-080222/planner_checkpoint.pt
+
+USER sadahiro
 
 ENTRYPOINT ["python", "MODEL3/VRPTW-main.py"]
