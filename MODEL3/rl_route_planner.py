@@ -732,6 +732,61 @@ if torch is not None:
                 scores[task.id] = score_sum[task.id] / weight if weight > 0.0 else 0.0
             return scores
 
+        def standardized_discounted_q_task_scores(
+            self,
+            tasks: Sequence[Task],
+            capacity: float,
+            dep_x: float,
+            dep_y: float,
+            greedy: bool = True,
+        ) -> Dict[int, float]:
+            """Compute per-task discounted-average standardized Q scores across a rollout."""
+            task_list = list(tasks)
+            if not task_list:
+                return {}
+            state = self.env.reset(task_list, capacity, dep_x, dep_y)
+            score_sum = {task.id: 0.0 for task in task_list}
+            weight_sum = {task.id: 0.0 for task in task_list}
+            remaining_ids = {task.id for task in task_list}
+            discount = 1.0
+            gamma = float(self.config.gamma)
+
+            was_training = self.policy_net.training
+            self.policy_net.eval()
+            try:
+                done = False
+                while not done:
+                    feasible = state.feasible_indices()
+                    if feasible.size == 0:
+                        break
+                    q_values = self._predict_q_values(state)
+                    feasible_q = q_values[feasible]
+                    mean = float(np.mean(feasible_q)) if feasible_q.size > 0 else 0.0
+                    std = float(np.std(feasible_q)) if feasible_q.size > 0 else 0.0
+                    if std == 0.0:
+                        std = 1.0
+                    standardized = (feasible_q - mean) / std
+                    for idx, q_value in zip(feasible, standardized):
+                        task_id = task_list[int(idx)].id
+                        if task_id not in remaining_ids:
+                            continue
+                        score_sum[task_id] += discount * float(q_value)
+                        weight_sum[task_id] += discount
+                    action_index = self.select_action(state, exploration=not greedy)
+                    if action_index >= 0 and action_index < len(task_list):
+                        remaining_ids.discard(task_list[int(action_index)].id)
+                    state, _, done, _ = self.env.step(action_index)
+                    discount *= gamma
+            finally:
+                if was_training:
+                    self.policy_net.train()
+
+            scores: Dict[int, float] = {}
+            for task in task_list:
+                weight = weight_sum.get(task.id, 0.0)
+                scores[task.id] = score_sum[task.id] / weight if weight > 0.0 else 0.0
+            return scores
+
         def select_action(self, state: GraphState, exploration: bool = True) -> int:
             feasible_indices = state.feasible_indices()
             if feasible_indices.size == 0:
@@ -931,6 +986,16 @@ else:
             greedy: bool = True,
         ) -> Dict[int, float]:
             raise ImportError("PyTorch is required to compute discounted Q scores for tasks.")
+
+        def standardized_discounted_q_task_scores(
+            self,
+            tasks: Sequence[Task],
+            capacity: float,
+            dep_x: float,
+            dep_y: float,
+            greedy: bool = True,
+        ) -> Dict[int, float]:
+            raise ImportError("PyTorch is required to compute standardized Q scores for tasks.")
 
 
 def build_default_planner(max_tasks: int) -> Tuple[VRPTWRoutingEnv, DQNRoutePlanner]:

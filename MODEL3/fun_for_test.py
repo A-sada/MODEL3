@@ -1,4 +1,4 @@
-from Strategy_Vehicle_ver1 import Vehicle
+from Strategy_Vehicle_verX import Vehicle
 from classes import Task
 from VRPTW_functions import euclidean_distance
 def route_check(route : list[Vehicle],dep_x,dep_y):

@@ -38,6 +38,7 @@ class Vehicle_BASE:
         self.negotiation_log_path: Optional[str] = None
         self.q_importance_weight = 1.0
         self._q_importance_cache = {}
+        self._standardized_q_cache = {}
     #掲示板を取得
     def set_balletin(self,balletin : Balletin):
         self.bulletin_board = balletin
@@ -78,6 +79,25 @@ class Vehicle_BASE:
         except Exception:
             return None
         self._q_importance_cache[cache_key] = scores
+        return scores
+
+    def standardized_q_task_scores(self, tasks):
+        if self.route_planner is None or tasks is None:
+            return None
+        task_list = list(tasks)
+        if not task_list:
+            return {}
+        cache_key = ("standardized",) + self._importance_cache_key(task_list)
+        cached = self._standardized_q_cache.get(cache_key)
+        if cached is not None:
+            return cached
+        try:
+            scores = self.route_planner.standardized_discounted_q_task_scores(
+                task_list, self.max_weight, self.dep_x, self.dep_y
+            )
+        except Exception:
+            return None
+        self._standardized_q_cache[cache_key] = scores
         return scores
 
     def discounted_q_scores_for_exchange(self, remove_task, give_task):
