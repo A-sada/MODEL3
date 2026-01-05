@@ -27,7 +27,7 @@ USER_RUN_CONFIG = {
     "test_samples": 50,
     "subset_min": 3,
     "subset_max": 20,
-    "train_episodes": 1500,
+    "train_episodes": 1000,
     "seed": 42,
     "log_interval": 50,
     "learning_rate": 1e-3,
