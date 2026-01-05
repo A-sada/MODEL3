@@ -25,12 +25,12 @@ RUN groupadd -g ${GID} sadahiro \
 
 WORKDIR /app
 COPY . /app
-RUN mkdir -p /app/output_files \
+RUN mkdir -p /app/new_output \
     && chown -R sadahiro:sadahiro /app
 
 # Default: use the latest checkpoint in the repo; override at runtime if needed
 ENV PYTHONPATH=/app:/app/MODEL3 \
-    RL_PLANNER_CHECKPOINT=/app/output_files/rl_planner/20251007-080222/planner_checkpoint.pt
+    RL_PLANNER_CHECKPOINT=/app/new_output/rl_planner/20251007-080222/planner_checkpoint.pt
 
 USER sadahiro
 

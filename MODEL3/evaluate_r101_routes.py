@@ -276,7 +276,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         output_dir = args.output_dir.expanduser().resolve()
     else:
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        output_dir = root_dir / "output_files" / "rl_planner" / "r101_routes" / timestamp
+        output_dir = root_dir / "new_output" / "rl_planner" / "r101_routes" / timestamp
     write_outputs(results, summary, output_dir)
 
     print(f"評価結果を保存しました: {output_dir}")

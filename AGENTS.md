@@ -48,9 +48,9 @@ Specific negotiation and signing policies live in strategy subclasses that inher
 1. Load tasks, instantiate vehicles, and attach the shared `Balletin` and optional RL planner.
 2. At each negotiation step vehicles reset step-local state and push proposals via `offer_on_negotiation`.
 3. Offers that pass `check_offer` create `Nego` entries; initiators register them through `accept_offer`.
-4. Paired vehicles spin up two `VehicleNegotiator` instances and run `Negotiator.Nego1`, logging every offer to `output_files/.../negotiation_offers.csv`.
+4. Paired vehicles spin up two `VehicleNegotiator` instances and run `Negotiator.Nego1`, logging every offer to `new_output/.../negotiation_offers.csv`.
 5. Successful agreements are filtered in `sign_contracts`; accepted task swaps update vehicle routes and the bulletin board before the next round.
-6. Metrics (`CVN`, `CRT`, etc.) and full routes are written under `output_files/<timestamp>` for later analysis.
+6. Metrics (`CVN`, `CRT`, etc.) and full routes are written under `new_output/<timestamp>` for later analysis.
 
 ## Extending the Agent Set
 - To add a new vehicle strategy, subclass `Vehicle_BASE`, override offer generation (`offer_on_negotiation`), signing (`sign_contracts`), or cost evaluation helpers, and register the class in the initialisation script that creates vehicles.

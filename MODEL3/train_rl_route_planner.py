@@ -42,11 +42,7 @@ USER_RUN_CONFIG = {
     "checkpoint": None,
     "no_train": False,
     "train_subsets": None,
-    "test_subsets": SCRIPT_DIR.parent
-    / "output_files"
-    / "rl_planner"
-    / "20250925-124137"
-    / "test_subsets.json",
+    "test_subsets": None,
     "tabu_iterations": 200,
     "tabu_tenure": 20,
     "tabu_max_no_improve": 60,
@@ -279,7 +275,7 @@ def ensure_output_dir(base_dir: Path | None) -> Path:
     if base_dir is None:
         root_dir = SCRIPT_DIR.parent
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        base_dir = root_dir / "output_files" / "rl_planner" / timestamp
+        base_dir = root_dir / "new_output" / "rl_planner" / timestamp
     base_dir.mkdir(parents=True, exist_ok=True)
     return base_dir
 

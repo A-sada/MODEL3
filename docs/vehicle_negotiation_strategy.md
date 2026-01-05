@@ -280,7 +280,7 @@ cost_saving
 
 ## 11. ログ：交渉オファーの記録
 
-`MODEL3/VRPTW-main.py` は `output_files/<timestamp>/negotiation_offers.csv` を作り、交渉の各提案を追記します。  
+`MODEL3/VRPTW-main.py` は `new_output/<timestamp>/negotiation_offers.csv` を作り、交渉の各提案を追記します。  
 書き込みは `MODEL3/Vehicle_Negotiatior.py: _log_offer(...)` が担当します。
 
 CSV の主な列:
@@ -306,4 +306,3 @@ CSV の主な列:
 推奨:
 - 距離・時間窓・掲示板参照などの共通ロジックは `MODEL3/VRPTW_functions.py` に寄せる
 - RL を使う場合は `Vehicle_BASE.set_route_planner(...)` / `evaluate_route_with_planner(...)` 契約に乗せる
-

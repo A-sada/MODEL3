@@ -27,10 +27,10 @@ RUN pip install --no-cache-dir \
 COPY MODEL3 /app/MODEL3
 
 # 出力先をホストにマウントできるようにだけ宣言（任意）
-VOLUME ["/app/MODEL3/output_files"]
+VOLUME ["/app/MODEL3/new_output"]
 
 # ドキュメント用にポート（GUIは使わないので開けなくてもOK）
 # EXPOSE 8000
 
-# デフォルト実行。ログや成果物は /app/MODEL3/output_files 以下に出ます
+# デフォルト実行。ログや成果物は /app/MODEL3/new_output 以下に出ます
 CMD ["python", "VRPTW-main.py"]

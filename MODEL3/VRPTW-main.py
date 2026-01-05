@@ -46,7 +46,7 @@ stay_areas_bb = pd.DataFrame({
 # taskのリスト化
 import os
 # ディレクトリの名前を指定
-base_directory_name = "output_files"
+base_directory_name = "new_output"
 
 # 現在の日時を取得して、文字列形式に変換
 current_time_str = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')

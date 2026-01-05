@@ -17,14 +17,23 @@ RUN pip install --upgrade pip && \
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
+# Create a user that matches the host UID/GID to avoid root-owned outputs
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} sadahiro \
+    && useradd -m -u ${UID} -g ${GID} sadahiro
+
 # Use the requested directory layout inside the container
 WORKDIR /home/sadahiro/RL_model/MODEL3
 
 # Copy only MODEL3 to keep the image smaller
 COPY MODEL3 /home/sadahiro/RL_model/MODEL3
-RUN mkdir -p /home/sadahiro/RL_model/output_files
+RUN mkdir -p /home/sadahiro/RL_model/new_output \
+    && chown -R sadahiro:sadahiro /home/sadahiro/RL_model
 
 ENV PYTHONPATH=/home/sadahiro/RL_model:/home/sadahiro/RL_model/MODEL3
+
+USER sadahiro
 
 # Default: run RL training script
 CMD ["python", "train_rl_route_planner.py"]
