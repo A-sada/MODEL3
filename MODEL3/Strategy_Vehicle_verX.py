@@ -80,9 +80,9 @@ class Vehicle(Vehicle_BASE):
     def before_negotiation(self):
         self.over_task = self._tasks_sorted_by_value()
 
-    def sign_contracts(self, list: List[Agree]):
+    def sign_contracts(self, agreements: List[Agree]):
         signed = []
-        for agreement in list:
+        for agreement in agreements:
             task_a = agreement.taskA
             candidate_tasks = list(self.tasks)
             if task_a not in candidate_tasks:
