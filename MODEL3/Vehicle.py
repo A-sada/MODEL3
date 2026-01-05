@@ -1,11 +1,16 @@
-from classes import Task,Offer,Nego,Balletin
+from classes import Task,Offer,Nego,Balletin,pac_task
 # 車両（エージェント）クラス
 import pandas as pd
 from negmas import AspirationNegotiator, ResponseType,SAONegotiator
 import numpy as np
 from negmas import SAOMechanism, AspirationNegotiator, Issue, ResponseType
 from typing import Optional, List
-from VRPTW_functions import euclidean_distance,slack_time_list
+from VRPTW_functions import (
+    euclidean_distance,
+    slack_time_list,
+    earliest_start_time_list,
+    latest_start_time_list,
+)
 import copy
 import math
 from balletin_are_search import most_stayed_area_dynamic,update_stay_areas
@@ -58,6 +63,33 @@ class Vehicle_BASE:
             return info
         except Exception:
             return None
+
+    def replan_route_with_planner(self):
+        if self.route_planner is None or len(self.tasks) <= 1:
+            return False
+        try:
+            planned_tasks, _info = self.route_planner.plan_route(
+                list(self.tasks), self.max_weight, self.dep_x, self.dep_y
+            )
+        except Exception:
+            return False
+        if not planned_tasks:
+            return False
+        planned_ids = {task.id for task in planned_tasks}
+        remaining = [task for task in self.tasks if task.id not in planned_ids]
+        self.tasks = planned_tasks + remaining
+        self._refresh_arrival_time_list()
+        return True
+
+    def _refresh_arrival_time_list(self):
+        self.arrival_time_list = []
+        self.current_weight = 0
+        for task in self.tasks:
+            self.arrival_time_list.append(pac_task(task))
+            self.current_weight += task.weight
+        if self.arrival_time_list:
+            earliest_start_time_list(self.arrival_time_list, self.dep_x, self.dep_y)
+            latest_start_time_list(self.arrival_time_list)
 
     def _importance_cache_key(self, tasks):
         return tuple(task.id for task in tasks)

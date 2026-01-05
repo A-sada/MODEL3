@@ -304,6 +304,8 @@ for negotiate_steps in range(MMM):
             else:
                 AgentA.exchange_flag = 1
                 AgentB.exchange_flag = 1
+                AgentA.replan_route_with_planner()
+                AgentB.replan_route_with_planner()
                 exchange_count += 1
 
     # end = time.time()

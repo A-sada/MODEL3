@@ -5,11 +5,13 @@ from typing import Dict, List, Optional
 from Vehicle import Vehicle_BASE
 from Vehicle_NegotiatiorX import VehicleNegotiatorX
 from balletin_are_search import calculate_dynamic_area
-from classes import Agree, Offer
+from classes import Agree, Offer, pac_task
 from VRPTW_functions import (
+    earliest_start_time_list,
     find_time_zone,
     find_vehicles_in_neighboring_areas,
     find_vehicle_by_id,
+    latest_start_time_list,
 )
 
 
@@ -95,6 +97,26 @@ class Vehicle(Vehicle_BASE):
             if rank_ratio <= 0.3:
                 signed.append(agreement)
         return signed
+
+    def first_step(self):
+        if self.route_planner is not None and len(self.tasks) > 1:
+            try:
+                planned_tasks, _info = self.route_planner.plan_route(
+                    self.tasks, self.max_weight, self.dep_x, self.dep_y
+                )
+            except Exception:
+                planned_tasks = None
+            if planned_tasks:
+                planned_ids = {task.id for task in planned_tasks}
+                remaining = [task for task in self.tasks if task.id not in planned_ids]
+                self.tasks = planned_tasks + remaining
+        self.arrival_time_list = []
+        self.current_weight = 0
+        for task in self.tasks:
+            self.arrival_time_list.append(pac_task(task))
+            self.current_weight += task.weight
+        earliest_start_time_list(self.arrival_time_list, self.dep_x, self.dep_y)
+        latest_start_time_list(self.arrival_time_list)
 
     def make_neg_agent(self, negotiation_id: Optional[int] = None, counterparty_id: Optional[int] = None):
         initial_can_propose = bool(self.offer_flag)
