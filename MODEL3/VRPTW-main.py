@@ -67,8 +67,10 @@ with open(negotiation_log_path, 'w') as negotiation_log_file:
         "taskB_id,taskB_ready_time,taskB_due_date,taskB_weight\n"
     )
 ll=[]
-ll=read_task("c104.txt",tasks)
-# ll=read_task("R2.TXT",tasks)
+data_filename = "c104.txt"
+# data_filename = "R2.TXT"
+data_filename_label = Path(data_filename).name
+ll=read_task(data_filename,tasks)
 max_xy = ll[0]
 max_time = ll[1]
 #n = (int)(max_xy /25)
@@ -150,6 +152,7 @@ filename = os.path.join(directory_name, "1log_main.txt")
 with open(filename, 'w') as f:
     # for i in range(len(log_nego)):
         # ファイル名を生成
+    f.write(f"{data_filename_label}\n")
     f.write(f"steps {0} CVN {log_CVN[0]} CRT {log_CRT[i]} n_neg {log_nego[0]}.\n")
 MMM = int(N/2 + 1)
 for negotiate_steps in range(MMM):
