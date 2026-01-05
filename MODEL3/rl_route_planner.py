@@ -14,7 +14,7 @@ try:  # Optional dependency
     import torch
     import torch.nn as nn
     import torch.optim as optim
-except ImportError:  # pragma: no cover - torch might not be installed on all setups
+except Exception:  # pragma: no cover - treat missing native libs as unavailable torch
     torch = None
     nn = None
     optim = None
