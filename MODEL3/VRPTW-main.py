@@ -338,16 +338,11 @@ for negotiate_steps in range(MMM):
         
     #未稼働車両の削除
     zzz = 0
+    cars_to_remove = []
     for car in vehicles:
-        
         if len(car.tasks)== 0:
             no_runs.append(car)
-            vehicles.remove(car)
-            if car in vehicles:
-                print("error")
-                            #vehicles.pop(car)
-            #del vehicles[zzz]
-            #zzz += 1
+            cars_to_remove.append(car)
             # id = 5 の行のインデックスを見つける
             indices_to_drop = bulletin_board.time_board[bulletin_board.time_board.id == car.id].index
             # これらの行を削除する
@@ -360,6 +355,9 @@ for negotiate_steps in range(MMM):
             car.bulletin_update(max_xy,max_time,zones,n)
         zzz += 1
         flag =0
+    for car in cars_to_remove:
+        if car in vehicles:
+            vehicles.remove(car)
         # for pac in car.arrival_time_list:
         #     if pac.late_start_time - pac.earliest_start_time <= 0:
         #         flag ==1

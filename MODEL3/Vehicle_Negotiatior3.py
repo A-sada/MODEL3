@@ -134,9 +134,15 @@ class VehicleNegotiator(SAONegotiator):
         self.remove_list = rt_list
 
     def check_task(self,new_task):
+        if new_task is None:
+            return False
         # 車両の開始位置から新しいタスクまでの距離を計算
-        start_task = Task(0, 0, 0, 0, 0, 0, 0)  # 仮の開始位置
+        start_x = getattr(self, "dep_x", 0)
+        start_y = getattr(self, "dep_y", 0)
+        start_task = Task(0, start_x, start_y, 0, 0, 0, 0)  # 仮の開始位置
         travel_time_from_start = euclidean_distance(start_task, new_task)
+        if not self.tasks:
+            return travel_time_from_start <= new_task.due_date
         if travel_time_from_start <= new_task.due_date :
             if travel_time_from_start + new_task.service_time + euclidean_distance(new_task, self.tasks[0]) <= self.tasks[0].due_date: 
                 return True
