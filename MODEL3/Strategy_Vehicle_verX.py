@@ -43,8 +43,11 @@ class Vehicle(Vehicle_BASE):
         return rank / float(len(sorted_scores))
 
     def offer_on_negotiation(self, run_cars, offer_id, vehicles):
-        ordered_tasks = self._tasks_sorted_by_value()
-        for task in ordered_tasks:
+        if len(self.tasks) <= 3:
+            tasks_to_offer = list(self.tasks)
+        else:
+            tasks_to_offer = self._tasks_sorted_by_value()
+        for task in tasks_to_offer:
             vehicles_in_neighbors = []
             task_area = calculate_dynamic_area(
                 task.x_coordinate,
