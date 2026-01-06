@@ -1,0 +1,16 @@
+c104.txt
+steps 0 CVN 15 CRT 4067 n_neg 0.
+steps 1 CVN 15 CRT 3838 n_neg 7.
+steps 2 CVN 15 CRT 3763 n_neg 7.
+steps 3 CVN 15 CRT 3801 n_neg 7.
+steps 4 CVN 15 CRT 3775 n_neg 6.
+steps 5 CVN 15 CRT 3691 n_neg 7.
+steps 6 CVN 15 CRT 3897 n_neg 7.
+steps 7 CVN 14 CRT 3776 n_neg 6.
+steps 8 CVN 14 CRT 3592 n_neg 6.
+steps 9 CVN 14 CRT 3611 n_neg 6.
+steps 10 CVN 14 CRT 3472 n_neg 6.
+steps 11 CVN 14 CRT 3551 n_neg 6.
+steps 12 CVN 14 CRT 3464 n_neg 5.
+steps 13 CVN 14 CRT 3473 n_neg 5.
+steps 14 CVN 13 CRT 3374 n_neg 5.

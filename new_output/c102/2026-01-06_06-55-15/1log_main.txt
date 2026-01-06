@@ -1,0 +1,11 @@
+c102.txt
+steps 0 CVN 18 CRT 3755 n_neg 0.
+steps 1 CVN 18 CRT 3889 n_neg 8.
+steps 2 CVN 18 CRT 3862 n_neg 8.
+steps 3 CVN 18 CRT 3787 n_neg 8.
+steps 4 CVN 18 CRT 3642 n_neg 8.
+steps 5 CVN 17 CRT 3711 n_neg 8.
+steps 6 CVN 17 CRT 3794 n_neg 7.
+steps 7 CVN 15 CRT 3789 n_neg 7.
+steps 8 CVN 15 CRT 3716 n_neg 6.
+steps 9 CVN 13 CRT 3686 n_neg 7.
