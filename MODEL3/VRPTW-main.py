@@ -21,7 +21,7 @@ run_num = 0
 tasks = []  # タスクを保存するためのリスト
 vehicles = []
 no_runs=[]
-N=100
+N=200
 
 #時間に関する掲示板
 b_board = pd.DataFrame({
