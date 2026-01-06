@@ -1,0 +1,16 @@
+r101.txt
+steps 0 CVN 31 CRT 3046 n_neg 0.
+steps 1 CVN 31 CRT 3271 n_neg 10.
+steps 2 CVN 30 CRT 3347 n_neg 9.
+steps 3 CVN 29 CRT 3243 n_neg 9.
+steps 4 CVN 29 CRT 3320 n_neg 9.
+steps 5 CVN 28 CRT 3272 n_neg 7.
+steps 6 CVN 28 CRT 3167 n_neg 7.
+steps 7 CVN 28 CRT 3142 n_neg 7.
+steps 8 CVN 28 CRT 3390 n_neg 7.
+steps 9 CVN 28 CRT 3298 n_neg 6.
+steps 10 CVN 28 CRT 3372 n_neg 5.
+steps 11 CVN 28 CRT 3386 n_neg 5.
+steps 12 CVN 28 CRT 3321 n_neg 5.
+steps 13 CVN 28 CRT 3399 n_neg 4.
+steps 14 CVN 27 CRT 3340 n_neg 6.
