@@ -67,7 +67,7 @@ with open(negotiation_log_path, 'w') as negotiation_log_file:
         "taskB_id,taskB_ready_time,taskB_due_date,taskB_weight\n"
     )
 ll=[]
-data_filename = "c104.txt"
+data_filename = "r101.txt"
 # data_filename = "R2.TXT"
 data_filename_label = Path(data_filename).name
 ll=read_task(data_filename,tasks)
