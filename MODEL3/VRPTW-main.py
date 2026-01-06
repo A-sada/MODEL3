@@ -1,4 +1,5 @@
 from classes import *
+import argparse
 import random
 from datetime import datetime
 from pathlib import Path
@@ -7,6 +8,7 @@ import math
 import pandas as pd
 import copy
 import time
+import os
 from balletin_are_search import create_time_zones
 from fun_for_test import route_check,check_arriva_list
 from VRPTW_functions import *
@@ -44,17 +46,32 @@ stay_areas_bb = pd.DataFrame({
 })
 
 # taskのリスト化
-import os
+
+def resolve_data_filename(default_name):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--data", "--data-file", dest="data_file")
+    args, _ = parser.parse_known_args()
+    if args.data_file:
+        return args.data_file
+    env_value = os.getenv("VRPTW_DATA_FILE")
+    if env_value:
+        return env_value
+    return default_name
 # ディレクトリの名前を指定
 base_directory_name = "new_output"
 
 # 現在の日時を取得して、文字列形式に変換
 current_time_str = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+output_suffix = os.getenv("VRPTW_OUTPUT_SUFFIX")
 
 #if not os.path.exists(base_directory_name):
 #    os.makedirs(base_directory_name)
 # 実行日時を名前とするフォルダのパスを生成
-directory_name = os.path.join(base_directory_name, current_time_str)
+if output_suffix:
+    run_tag = Path(output_suffix).stem
+    directory_name = os.path.join(base_directory_name, run_tag, current_time_str)
+else:
+    directory_name = os.path.join(base_directory_name, current_time_str)
 
 
 # ディレクトリが存在しない場合、作成（親ディレクトリも含めて）
@@ -67,7 +84,7 @@ with open(negotiation_log_path, 'w') as negotiation_log_file:
         "taskB_id,taskB_ready_time,taskB_due_date,taskB_weight\n"
     )
 ll=[]
-data_filename = "r101.txt"
+data_filename = resolve_data_filename("r101.txt")
 # data_filename = "R2.TXT"
 data_filename_label = Path(data_filename).name
 ll=read_task(data_filename,tasks)
