@@ -57,6 +57,20 @@ def resolve_data_filename(default_name):
     if env_value:
         return env_value
     return default_name
+
+def resolve_strategy_label(vehicles):
+    if not vehicles:
+        return "Unknown"
+    labels = []
+    for vehicle in vehicles:
+        cls = vehicle.__class__
+        module = cls.__module__
+        name = cls.__name__
+        if module:
+            labels.append(f"{module}.{name}")
+        else:
+            labels.append(name)
+    return ",".join(sorted(set(labels)))
 # ディレクトリの名前を指定
 base_directory_name = "new_output"
 
@@ -166,9 +180,11 @@ log_nego=[0]
 Go_flag = False
 bulletin_board.max_steps = N
 filename = os.path.join(directory_name, "1log_main.txt")
+strategy_label = resolve_strategy_label(vehicles)
 with open(filename, 'w') as f:
     # for i in range(len(log_nego)):
         # ファイル名を生成
+    f.write(f"strategy {strategy_label}\n")
     f.write(f"{data_filename_label}\n")
     f.write(f"steps {0} CVN {log_CVN[0]} CRT {log_CRT[i]} n_neg {log_nego[0]}.\n")
 MMM = int(N/2 + 1)
