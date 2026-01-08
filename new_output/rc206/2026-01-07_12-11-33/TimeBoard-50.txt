@@ -1,0 +1,7 @@
+id	slack_time	departure_time	return_time
+1	1299	273	901
+2	1265	115	870
+5	825	75	505
+6	1395	0	611
+7	914	0	777
+8	818	0	418

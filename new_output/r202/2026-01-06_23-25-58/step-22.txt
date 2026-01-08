@@ -1,0 +1,8 @@
+Vehicle 0 has tasks [33, 19, 51, 68, 4, 60, 24, 89, 93, 100, 70, 58, 32, 74, 80] with total weight 213.
+Vehicle 1 has tasks [3, 2, 59, 9, 78, 43, 77, 50, 12, 88, 86] with total weight 164.
+Vehicle 2 has tasks [7, 67, 22, 95, 34] with total weight 82.
+Vehicle 4 has tasks [92, 45, 42, 47, 36, 11, 64, 91, 83, 27] with total weight 104.
+Vehicle 5 has tasks [14, 96, 94, 39, 28, 48, 62, 21, 85, 1, 82, 75, 31, 52, 37, 98, 5, 13, 63, 65] with total weight 389.
+Vehicle 6 has tasks [15, 44, 16, 38, 8, 90, 49, 46, 97, 56, 55, 54, 72, 26, 10, 20, 66, 87, 69, 81] with total weight 292.
+Vehicle 7 has tasks [23, 29, 71, 76, 18, 99, 79, 6, 35, 17, 25, 30, 73, 40, 41, 57, 61, 84, 53] with total weight 214.
+CVN 7 CRT 3024

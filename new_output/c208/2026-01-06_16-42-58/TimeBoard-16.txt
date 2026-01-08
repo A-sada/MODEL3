@@ -1,0 +1,6 @@
+id	slack_time	departure_time	return_time
+1	8514	139	2160
+2	6387	0	1498
+3	1390	696	3079
+4	9100	516	1408
+5	5500	0	828
