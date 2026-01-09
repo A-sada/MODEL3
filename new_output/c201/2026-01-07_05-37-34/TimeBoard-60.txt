@@ -1,0 +1,6 @@
+id	slack_time	departure_time	return_time
+2	3449	10	3275
+3	2427	562	2685
+4	2272	11	1829
+5	2300	0	1349
+6	2403	0	588
