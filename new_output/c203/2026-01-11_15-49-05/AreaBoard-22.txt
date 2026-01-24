@@ -1,0 +1,8 @@
+id	A	B	C	D	E	F	G
+0			A2	A2	A2	A2	C1
+1	C2	A2	A2	A2	A1	B2	C2
+3	B3						
+5	B2	C2	A2				
+6	C2	A2	B1	A2	C2		
+7	B1	C3	B1	C1	B1		
+8	B2	B2	A2	B1	B3	B1	
