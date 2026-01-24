@@ -1,0 +1,21 @@
+Vehicle 0 has tasks [64, 49, 32, 20] with total weight 71.
+Vehicle 1 has tasks [36, 88, 86] with total weight 49.
+Vehicle 4 has tasks [83, 99, 10, 100] with total weight 53.
+Vehicle 5 has tasks [98, 16] with total weight 29.
+Vehicle 6 has tasks [72, 73, 59, 61, 96, 13] with total weight 109.
+Vehicle 7 has tasks [53, 17, 84] with total weight 23.
+Vehicle 8 has tasks [31] with total weight 27.
+Vehicle 9 has tasks [92, 11, 19, 47, 46, 57, 60, 5, 93, 58] with total weight 135.
+Vehicle 10 has tasks [75, 26, 90, 71] with total weight 53.
+Vehicle 11 has tasks [42, 76, 50, 66, 54, 21, 28, 2, 25] with total weight 114.
+Vehicle 12 has tasks [65] with total weight 20.
+Vehicle 13 has tasks [94, 97, 37, 44, 38, 14, 74, 52] with total weight 118.
+Vehicle 14 has tasks [51, 40, 41, 55, 81, 34, 12, 68, 80, 77] with total weight 141.
+Vehicle 15 has tasks [95, 15, 85, 18] with total weight 81.
+Vehicle 16 has tasks [48] with total weight 36.
+Vehicle 17 has tasks [39, 23, 22, 43, 89, 24] with total weight 103.
+Vehicle 18 has tasks [69, 1, 79, 78, 67, 56] with total weight 73.
+Vehicle 19 has tasks [33, 87, 6, 4, 27, 45, 91, 82, 70] with total weight 113.
+Vehicle 20 has tasks [7, 62, 8, 35, 3, 63, 29] with total weight 73.
+Vehicle 21 has tasks [30, 9] with total weight 37.
+CVN 20 CRT 2697
